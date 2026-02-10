@@ -3,8 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800">
+    <UserControl.Resources>
+        <CollectionViewSource x:Key="GroupedByBucket" Source="{Binding Report.Groups}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="Bucket"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+    </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -61,57 +70,79 @@
         <!-- Report Content -->
         <ScrollViewer Grid.Row="3"
                      VerticalScrollBarVisibility="Auto"
-                     HorizontalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding Report.Groups}"
-                         Margin="10">
+                     HorizontalScrollBarVisibility="Disabled">
+            <!-- Outer loop: Buckets (Studio, School, etc.) -->
+            <ItemsControl ItemsSource="{Binding GroupedByBucket}"
+                         Margin="10"
+                         MaxWidth="1400"
+                         HorizontalAlignment="Left">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <!-- Group Header (Bucket + Class) -->
-                        <StackPanel Margin="0,10,0,20">
-                            <Border Background="#2196F3"
-                                   Padding="10,5"
-                                   Margin="0,0,0,5">
-                                <TextBlock FontSize="16"
+                        <StackPanel Margin="0,0,0,30">
+                            <!-- Bucket Header -->
+                            <Border Background="#1976D2"
+                                   Padding="15,8"
+                                   Margin="0,0,0,15">
+                                <TextBlock Text="{Binding Key}"
+                                          FontSize="20"
                                           FontWeight="Bold"
-                                          Foreground="White">
-                                    <Run Text="{Binding Bucket}"/>
-                                    <Run Text="-"/>
-                                    <Run Text="{Binding Class}"/>
-                                </TextBlock>
+                                          Foreground="White"/>
                             </Border>
+                            
+                            <!-- Inner loop: Classes within this Bucket -->
+                            <ItemsControl ItemsSource="{Binding}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="20,0,0,20">
+                                            <!-- Class Header -->
+                                            <Border Background="#2196F3"
+                                                   Padding="10,5"
+                                                   Margin="0,0,0,5">
+                                                <TextBlock Text="{Binding Class}"
+                                                          FontSize="16"
+                                                          FontWeight="SemiBold"
+                                                          Foreground="White"/>
+                                            </Border>
 
-                            <!-- Entries Table -->
-                            <DataGrid ItemsSource="{Binding Entries}"
-                                     AutoGenerateColumns="False"
-                                     IsReadOnly="True"
-                                     GridLinesVisibility="Horizontal"
-                                     HeadersVisibility="Column"
-                                     CanUserResizeColumns="True"
-                                     CanUserSortColumns="False"
-                                     CanUserReorderColumns="False"
-                                     SelectionMode="Single"
-                                     AlternatingRowBackground="#F5F5F5">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Place"
-                                                       Binding="{Binding Place}"
-                                                       Width="60"/>
-                                    <DataGridTextColumn Header="Score"
-                                                       Binding="{Binding FinalScore, StringFormat=F2}"
-                                                       Width="80"/>
-                                    <DataGridTextColumn Header="Program #"
-                                                       Binding="{Binding ProgramNumber}"
-                                                       Width="90"/>
-                                    <DataGridTextColumn Header="Participants"
-                                                       Binding="{Binding Participants}"
-                                                       Width="200"/>
-                                    <DataGridTextColumn Header="Studio"
-                                                       Binding="{Binding StudioName}"
-                                                       Width="200"/>
-                                    <DataGridTextColumn Header="Routine"
-                                                       Binding="{Binding RoutineTitle}"
-                                                       Width="*"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                                            <!-- Entries Table -->
+                                            <ListView ItemsSource="{Binding Entries}"
+                                                      SelectionMode="Single">
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
+                                                <ListView.View>
+                                                    <GridView>
+                                                        <GridViewColumn Header="Place" 
+                                                                       DisplayMemberBinding="{Binding Place}" 
+                                                                       Width="60"/>
+                                                        <GridViewColumn Header="Score" 
+                                                                       DisplayMemberBinding="{Binding FinalScore, StringFormat=F2}" 
+                                                                       Width="80"/>
+                                                        <GridViewColumn Header="Program #" 
+                                                                       DisplayMemberBinding="{Binding ProgramNumber}" 
+                                                                       Width="90"/>
+                                                        <GridViewColumn Header="Participants" 
+                                                                       DisplayMemberBinding="{Binding Participants}" 
+                                                                       Width="200"/>
+                                                        <GridViewColumn Header="Studio" 
+                                                                       DisplayMemberBinding="{Binding StudioName}" 
+                                                                       Width="200"/>
+                                                        <GridViewColumn Header="Routine" 
+                                                                       DisplayMemberBinding="{Binding RoutineTitle}" 
+                                                                       Width="Auto"/>
+                                                    </GridView>
+                                                </ListView.View>
+                                            </ListView>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

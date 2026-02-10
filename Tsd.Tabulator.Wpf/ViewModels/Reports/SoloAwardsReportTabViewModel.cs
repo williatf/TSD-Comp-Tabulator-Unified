@@ -73,6 +73,9 @@ public sealed class SoloAwardsReportTabViewModel : Screen, IReportTab
 
     public bool HasWarning => !string.IsNullOrWhiteSpace(WarningMessage);
 
+    public IEnumerable<IGrouping<string, SoloAwardGroup>> GroupedByBucket => 
+        Report?.Groups.GroupBy(g => g.Bucket) ?? Enumerable.Empty<IGrouping<string, SoloAwardGroup>>();
+
     public SoloAwardReport? Report
     {
         get => _report;
@@ -81,6 +84,7 @@ public sealed class SoloAwardsReportTabViewModel : Screen, IReportTab
             _report = value;
             NotifyOfPropertyChange();
             NotifyOfPropertyChange(nameof(HasData));
+            NotifyOfPropertyChange(nameof(GroupedByBucket));
         }
     }
 

@@ -49,8 +49,8 @@ public sealed class ConfigViewModel : Screen
                 if (value != null)
                 {
                     _shell.CurrentCompetitionType = value.Value;
-                    // Save to database immediately
-                    _ = SaveCompetitionTypeAsync();
+                    // Save to database immediately - properly await it
+                    Task.Run(async () => await SaveCompetitionTypeAsync()).Wait();
                 }
             }
         }
@@ -63,13 +63,12 @@ public sealed class ConfigViewModel : Screen
             
         var factory = new SqliteConnectionFactory(_shell.CurrentDbPath);
         using var conn = factory.OpenConnection();
-        conn.Open();
         
         using var cmd = conn.CreateCommand();
         cmd.CommandText = @"
             INSERT OR REPLACE INTO AppSettings (ConfigKey, ConfigValue)
             VALUES ('CompetitionType', @value)";
-        cmd.Parameters.AddWithValue("@value", _shell.CurrentCompetitionType.ToString());
+        cmd.Parameters.AddWithValue("@value", ((int)_shell.CurrentCompetitionType).ToString());
         
         await cmd.ExecuteNonQueryAsync();
     }
@@ -154,8 +153,7 @@ public sealed class ConfigViewModel : Screen
             Value = Core.Models.CompetitionType.OKState 
         });
         
-        // Set default selection
-        SelectedCompetitionType = AvailableCompetitionTypes.First();
+        // Don't set default here - let LoadAsync() do it
     }
 
     protected override async Task OnActivatedAsync(CancellationToken cancellationToken = default)
@@ -452,9 +450,9 @@ public sealed class ConfigViewModel : Screen
 
         try
         {
-            // Get the first available score sheet for testing purposes
+            // Get the first available score sheet for the current competition type
             var selector = new DefaultScoreSheetSelector();
-            var (availableSheets, _) = selector.GetSheets(Core.Models.CompetitionType.TSDance, null);
+            var (availableSheets, _) = selector.GetSheets(_shell.CurrentCompetitionType, null);
             
             if (!availableSheets.Any())
             {
@@ -478,7 +476,7 @@ public sealed class ConfigViewModel : Screen
             {
                 // Generate random scores for all judges and criteria
                 var cells = new List<RoutineScoreCellRow>();
-                for (int judgeIndex = 0; judgeIndex < sheet.JudgeCount; judgeIndex++)
+                for (int judgeIndex = 1; judgeIndex <= sheet.JudgeCount; judgeIndex++)
                 {
                     foreach (var criterion in sheet.Criteria)
                     {

@@ -35,6 +35,9 @@ public sealed class Bootstrapper : BootstrapperBase
         // Shell (singleton - the event context)
         _container.Singleton<ShellViewModel>();
         
+        // Report configuration (singleton)
+        _container.Singleton<ReportConfiguration>();
+        
         // Report infrastructure
         _container.RegisterHandler(typeof(IReportCatalog), null, c => 
         {

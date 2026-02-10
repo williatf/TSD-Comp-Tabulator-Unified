@@ -16,12 +16,14 @@ public sealed class ReportsViewModel : Conductor<IScreen>.Collection.OneActive
 {
     private readonly ShellViewModel _shell;
     private readonly IReportCatalog _reportCatalog;
+    private readonly ReportConfiguration _reportConfig;
     private bool _isRefreshing;
 
-    public ReportsViewModel(ShellViewModel shell, IReportCatalog reportCatalog)
+    public ReportsViewModel(ShellViewModel shell, IReportCatalog reportCatalog, ReportConfiguration reportConfig)
     {
         _shell = shell;
         _reportCatalog = reportCatalog;
+        _reportConfig = reportConfig;
         DisplayName = "Reports";
     }
 
@@ -59,9 +61,23 @@ public sealed class ReportsViewModel : Conductor<IScreen>.Collection.OneActive
 
     private async Task BuildTabsAsync()
     {
-        // Get available reports for current competition type
-        var reportDefs = _reportCatalog.GetAllReports()
-            .Where(r => r is SoloAwardsReportDefinition soloReport && soloReport.IsAvailableFor(_shell.CurrentCompetitionType))
+        // Get ordered list of report IDs for current competition type
+        var reportIds = _reportConfig.GetReportsFor(_shell.CurrentCompetitionType);
+        
+        // Resolve report definitions in the specified order
+        var reportDefs = reportIds
+            .Select(id => 
+            {
+                try 
+                { 
+                    return _reportCatalog.GetReport(id); 
+                }
+                catch 
+                { 
+                    return null; // Skip reports that aren't registered
+                }
+            })
+            .Where(r => r != null)
             .ToList();
 
         // If tabs already match, don't rebuild
