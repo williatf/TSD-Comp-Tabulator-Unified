@@ -1,0 +1,241 @@
+﻿<UserControl x:Class="Tsd.Tabulator.Wpf.Views.ScoreSheetView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <UserControl.Resources>
+
+        <Style x:Key="GroupHeaderStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Background" Value="Gray"/>
+            <Setter Property="Padding" Value="4,6"/>
+        </Style>
+        <Style x:Key="HeaderStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Crimson" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0 0 5 0" />
+            <Setter Property="FontSize" Value="10" />
+        </Style>
+
+        <Style x:Key="SmallStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Gray" />
+            <Setter Property="Margin" Value="0 0 0 3" />
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="8"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Width" Value="90" />
+            <EventSetter Event="KeyDown" Handler="TextBox_KeyDown"/>
+            <EventSetter Event="GotKeyboardFocus" Handler="TextBox_GotKeyboardFocus"/>
+            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TextBox_PreviewMouseLeftButtonDown"/>
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <DockPanel LastChildFill="True">
+                            <Border BorderBrush="Red" BorderThickness="3">
+                                <AdornedElementPlaceholder />
+                            </Border>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                            Value="{Binding RelativeSource={RelativeSource Self},
+                                            Path=(Validation.Errors)[0].ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <!-- Constrain the width so columns don't stretch excessively on very wide screens -->
+    <Border MaxWidth="1400" HorizontalAlignment="Left">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- group headers (conditional) -->
+                <RowDefinition Height="Auto"/>
+                <!-- column labels -->
+                <RowDefinition Height="Auto"/>
+                <!-- max values -->
+                <RowDefinition Height="Auto"/>
+                <!-- judge rows -->
+                <RowDefinition Height="Auto"/>
+                <!-- totals row -->
+            </Grid.RowDefinitions>
+
+            <!-- Group Headers (only shown if ShowGroupHeaders is true) -->
+            <Grid Grid.Row="0" x:Name="GroupHeadersGrid" Visibility="{Binding ShowGroupHeaders, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <!-- Judge label column -->
+                    <ColumnDefinition Width="*"/>
+                    <!-- Columns grid -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Empty cell for judge label column -->
+                <Border Grid.Column="0" Background="Transparent"/>
+
+                <!-- Group headers with Grid for spanning -->
+                <Grid Grid.Column="1" x:Name="GroupHeaderColumnsGrid">
+                    <!-- Dynamic ColumnDefinitions will be set in code-behind -->
+                    <Grid.ColumnDefinitions>
+                        <!-- One ColumnDefinition per score column (excluding Total) -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Group headers will be added dynamically in code-behind -->
+                </Grid>
+            </Grid>
+
+            <!-- Column labels -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Style="{StaticResource HeaderStyle}" Text=""/>
+
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding Columns}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="{Binding Columns.Count}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Style="{StaticResource HeaderStyle}" Text="{Binding Header}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+
+            <!-- Max row -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Style="{StaticResource SmallStyle}" Text=""/>
+
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding Columns}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="{Binding Columns.Count}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Style="{StaticResource SmallStyle}" Text="{Binding MaxText}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+
+            <!-- Judge rows -->
+            <ItemsControl Grid.Row="3" ItemsSource="{Binding Judges}" Margin="0,4,0,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,1,0,1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Style="{StaticResource HeaderStyle}"
+                                       Text="{Binding Label}"
+                                       TextAlignment="Left"
+                                       Margin="0,0,6,0"/>
+
+                            <!-- Cells + total -->
+                            <ItemsControl Grid.Column="1" ItemsSource="{Binding RowCells}" Focusable="False" KeyboardNavigation.IsTabStop="False">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="{Binding DataContext.Columns.Count, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- Use a simple container with triggers -->
+                                        <Grid>
+                                            <!-- Score cell TextBox -->
+                                            <TextBox Margin="1,0,1,0"
+                                                Width="90"
+                                                Text="{Binding ScoreCell.Text,
+                                                    UpdateSourceTrigger=PropertyChanged,
+                                                    ValidatesOnNotifyDataErrors=True,
+                                                    NotifyOnValidationError=True}"
+                                                KeyDown="TextBox_KeyDown"
+                                                GotKeyboardFocus="TextBox_GotKeyboardFocus"
+                                                PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown">
+                                                <TextBox.Style>
+                                                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsTotal}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBox.Style>
+                                            </TextBox>
+
+                                            <!-- Total cell (read-only) -->
+                                            <TextBlock Margin="1,0,1,0"
+                                                  Width="90"
+                                                  TextAlignment="Center"
+                                                  FontWeight="Bold"
+                                                  Text="{Binding TotalValue, StringFormat={}{0:0.##}}"
+                                                  VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsTotal}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Totals row -->
+            <Grid Grid.Row="4" Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Totals:" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Margin="12,0,0,0" FontWeight="Bold">
+                    <Run Text="Grand Total: "/>
+                    <Run Text="{Binding GrandTotal, Mode=OneWay, StringFormat={}{0:0.##}}" Foreground="DarkBlue"/>
+                </TextBlock>
+                <TextBlock Grid.Column="2" Margin="20,0,0,0" FontWeight="Bold">
+                    <Run Text="Average: "/>
+                    <Run Text="{Binding AvgScore, Mode=OneWay, StringFormat={}{0:0.##}}" Foreground="DarkGreen"/>
+                </TextBlock>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

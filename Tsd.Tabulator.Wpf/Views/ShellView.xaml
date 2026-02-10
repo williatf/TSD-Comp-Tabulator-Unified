@@ -1,0 +1,93 @@
+﻿<ribbon:RibbonWindow x:Class="Tsd.Tabulator.Wpf.Views.ShellView"
+              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon;assembly=System.Windows.Controls.Ribbon"
+              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+              xmlns:cal="http://www.caliburnproject.org"
+              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+              mc:Ignorable="d"
+              Title="TSDance Comp Tabulator"
+              Height="600" Width="900"
+              WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+            <Ribbon x:Name="RibbonWin" SelectedIndex="0">
+                <Ribbon.ApplicationMenu>
+                    <RibbonApplicationMenu KeyTip="F">
+
+                        <RibbonApplicationMenuItem Header="Exit"
+                                                  ImageSource="/Tsd.Tabulator.Wpf;component/Images/exit.png">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="CloseApp"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </RibbonApplicationMenuItem>
+
+                        <RibbonApplicationMenuItem Header="Save Database"
+                                                  ImageSource="/Tsd.Tabulator.Wpf;component/Images/save.png">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="ExportDB"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </RibbonApplicationMenuItem>
+
+                    </RibbonApplicationMenu>
+                </Ribbon.ApplicationMenu>
+
+                <RibbonTab Header="Tabulation" KeyTip="T">
+                    <RibbonGroup>
+                        <RibbonButton x:Name="ShowConfigView"
+                                      LargeImageSource="/Tsd.Tabulator.Wpf;component/Images/gear.png"
+                                      Label="Config"
+                                      KeyTip="C"/>
+                    </RibbonGroup>
+
+                    <RibbonGroup>
+                        <RibbonButton x:Name="LoadNewContest"
+                                      LargeImageSource="/Tsd.Tabulator.Wpf;component/Images/open.png"
+                                      Label="Load New Contest"
+                                      KeyTip="L"
+                                      ToolTip="Load new contest from CSV file"/>
+                        <RibbonButton x:Name="OpenContest"
+                                      LargeImageSource="/Tsd.Tabulator.Wpf;component/Images/open.png"
+                                      Label="Open Existing Contest"
+                                      KeyTip="L"
+                                      ToolTip="Open an existing contest from it's database file"/>
+                    </RibbonGroup>
+
+                    <RibbonGroup>
+                        <RibbonButton x:Name="ShowDataView"
+                                      LargeImageSource="/Tsd.Tabulator.Wpf;component/Images/score.png"
+                                      Label="Record Scores"
+                                      KeyTip="S"/>
+                        <RibbonButton x:Name="ShowReportsView"
+                                      LargeImageSource="/Tsd.Tabulator.Wpf;component/Images/reports.png"
+                                      Label="View Reports"
+                                      KeyTip="R"/>
+                    </RibbonGroup>
+                </RibbonTab>
+            </Ribbon>
+        </DockPanel>
+
+        <ContentControl x:Name="ActiveItem"
+                        Grid.Column="1" Grid.Row="2"
+                        Grid.ColumnSpan="2"/>
+    </Grid>
+</ribbon:RibbonWindow>
