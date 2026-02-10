@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using Caliburn.Micro;
 using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Core.Services;
@@ -11,6 +12,7 @@ using Tsd.Tabulator.Wpf.ViewModels.Reports;
 
 namespace Tsd.Tabulator.Wpf;
 
+[SupportedOSPlatform("windows")]
 public sealed class Bootstrapper : BootstrapperBase
 {
     private readonly SimpleContainer _container = new();
@@ -46,12 +48,14 @@ public sealed class Bootstrapper : BootstrapperBase
             return new ReportCatalog(definitions);
         });
         
-        // Register all report definitions
-        _container.RegisterSingleton(typeof(IReportDefinition), "SoloAwards", typeof(SoloAwardsReportDefinition));
+        // Register all report definitions (without keys so GetAllInstances can find them)
+        _container.Singleton<IReportDefinition, SoloAwardsReportDefinition>();
+        _container.Singleton<IReportDefinition, DuetsAwardsReportDefinition>();
         
         // Report ViewModels (per-request)
         _container.PerRequest<ReportsViewModel>();
         _container.PerRequest<SoloAwardsReportTabViewModel>();
+        _container.PerRequest<DuetsAwardsReportTabViewModel>();
         
         // Report services (per-request to get fresh repository)
         _container.RegisterHandler(typeof(ISoloAwardReportService), null, c =>
@@ -67,6 +71,21 @@ public sealed class Bootstrapper : BootstrapperBase
                               ?? throw new InvalidOperationException("IClassConfigService not registered.");
 
             return new SoloAwardReportService(scoreRepo, classConfig, shell.CurrentDbPath!);
+        });
+        
+        _container.RegisterHandler(typeof(IDuetAwardReportService), null, c =>
+        {
+            var shell = c.GetInstance(typeof(ShellViewModel), null) as ShellViewModel;
+            if (shell == null || !shell.HasEventLoaded)
+                throw new InvalidOperationException("No event is currently open.");
+            
+            var factory = new SqliteConnectionFactory(shell.CurrentDbPath!);
+            var scoreRepo = new ScoreRepository(factory);
+
+            var classConfig = c.GetInstance(typeof(IClassConfigService), null) as IClassConfigService
+                              ?? throw new InvalidOperationException("IClassConfigService not registered.");
+
+            return new DuetAwardReportService(scoreRepo, classConfig, shell.CurrentDbPath!);
         });
         
         // Dialogs

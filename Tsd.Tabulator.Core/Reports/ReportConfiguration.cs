@@ -20,6 +20,7 @@ public sealed class ReportConfiguration
             [CompetitionType.TSDance] = new List<string>
             {
                 "SoloAwards",
+                "DuetAwards",
                 // Add more TSDance-specific reports here in display order
             },
 

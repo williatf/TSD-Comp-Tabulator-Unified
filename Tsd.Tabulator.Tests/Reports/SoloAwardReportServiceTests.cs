@@ -19,7 +19,8 @@ public sealed class SoloAwardReportServiceTests
             new() { Bucket = "Studio", Class = "Teen Studio", Participants = "Bob", ProgramNumber = 102, StudioName = "Dance Co", RoutineTitle = "Routine B", FinalScore = 95.5 },    // Tied for 1st
             new() { Bucket = "Studio", Class = "Teen Studio", Participants = "Charlie", ProgramNumber = 103, StudioName = "Dance Co", RoutineTitle = "Routine C", FinalScore = 92.0 } // Should be 3rd
         });
-        var service = new SoloAwardReportService(mockRepo);
+        var mockClassConfig = new MockClassConfigService();
+        var service = new SoloAwardReportService(mockRepo, mockClassConfig, "test.db");
 
         // Act
         var report = await service.GenerateReportAsync();
@@ -48,7 +49,8 @@ public sealed class SoloAwardReportServiceTests
             new() { Bucket = "Studio", Class = "Teen Studio", Participants = "Bob", ProgramNumber = 102, StudioName = "Studio B", RoutineTitle = "Routine 2", FinalScore = 85.0 },
             new() { Bucket = "School", Class = "Junior School", Participants = "Charlie", ProgramNumber = 103, StudioName = "School C", RoutineTitle = "Routine 3", FinalScore = 88.0 }
         });
-        var service = new SoloAwardReportService(mockRepo);
+        var mockClassConfig = new MockClassConfigService();
+        var service = new SoloAwardReportService(mockRepo, mockClassConfig, "test.db");
 
         // Act
         var report = await service.GenerateReportAsync();
@@ -72,7 +74,8 @@ public sealed class SoloAwardReportServiceTests
             new() { Bucket = "Studio", Class = "Teen Studio", Participants = "Bob", ProgramNumber = 102, StudioName = "Studio B", RoutineTitle = "Routine 2", FinalScore = 90.0 },
             new() { Bucket = "Studio", Class = "Teen Studio", Participants = "Charlie", ProgramNumber = 103, StudioName = "Studio C", RoutineTitle = "Routine 3", FinalScore = 92.0 }
         });
-        var service = new SoloAwardReportService(mockRepo);
+        var mockClassConfig = new MockClassConfigService();
+        var service = new SoloAwardReportService(mockRepo, mockClassConfig, "test.db");
 
         // Act
         var report = await service.GenerateReportAsync();
@@ -107,6 +110,14 @@ public sealed class SoloAwardReportServiceTests
             return Task.FromResult<IReadOnlyList<SoloAwardCandidate>>(_candidates);
         }
 
+        public Task<IReadOnlyList<DuetAwardCandidate>> GetDuetAwardsCandidatesAsync()
+        {
+            // Return empty list for mock - duet tests would be in a separate test class
+            return Task.FromResult<IReadOnlyList<DuetAwardCandidate>>(
+                new List<DuetAwardCandidate>().AsReadOnly()
+            );
+        }
+
         // Other methods not needed for these tests
         public Task<IReadOnlyList<RoutineScoreCellRow>> GetCellsAsync(string routineId, string sheetKey) => throw new System.NotImplementedException();
         public Task SaveCellsAsync(string routineId, string sheetKey, IEnumerable<RoutineScoreCellRow> cells) => throw new System.NotImplementedException();
@@ -115,5 +126,31 @@ public sealed class SoloAwardReportServiceTests
         public Task SetLastSheetKeyAsync(string routineId, string sheetKey) => throw new System.NotImplementedException();
         public Task DeleteScoresExceptSheetAsync(string routineId, string keepSheetKey) => throw new System.NotImplementedException();
         public Task ClearAllScoresAsync() => throw new System.NotImplementedException();
+    }
+
+    // Mock class config service for testing
+    private sealed class MockClassConfigService : IClassConfigService
+    {
+        public Task SeedEventFromGlobalAsync(string eventDbPath) => Task.CompletedTask;
+
+        public Task UpsertClassDefinitionAsync(ClassDefinition def, string eventDbPath, bool saveGlobally = true) => Task.CompletedTask;
+
+        public Task UpsertAliasAsync(string alias, string classKey, string eventDbPath, bool saveGlobally = true) => Task.CompletedTask;
+
+        public Task DeleteClassDefinitionAsync(string classKey, string eventDbPath, bool deleteGlobally = true) => Task.CompletedTask;
+
+        public Task DeleteAliasAsync(string alias, string eventDbPath, bool deleteGlobally = true) => Task.CompletedTask;
+
+        public Task<IEnumerable<string>> GetUnmappedClassesAsync(string eventDbPath) => 
+            Task.FromResult(Enumerable.Empty<string>());
+
+        public Task<IEnumerable<ClassDefinition>> GetClassDefinitionsAsync(string eventDbPath) =>
+            Task.FromResult(Enumerable.Empty<ClassDefinition>());
+
+        public Task<IEnumerable<ClassAlias>> GetAliasesAsync(string eventDbPath) =>
+            Task.FromResult(Enumerable.Empty<ClassAlias>());
+
+        public Task<string?> ResolveClassKeyAsync(string? classText, string eventDbPath) =>
+            Task.FromResult(classText);
     }
 }

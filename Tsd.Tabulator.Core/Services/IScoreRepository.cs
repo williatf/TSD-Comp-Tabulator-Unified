@@ -37,4 +37,11 @@ public interface IScoreRepository
     /// and keeps only the best-scoring routine per participant per bucket.
     /// </summary>
     Task<IReadOnlyList<SoloAwardCandidate>> GetSoloAwardsCandidatesAsync();
+    
+    /// <summary>
+    /// Gets duet award candidates with computed final scores.
+    /// Filters for EntryType containing 'Duet', splits into School/Studio buckets,
+    /// and keeps only the best-scoring routine per participant per bucket.
+    /// </summary>
+    Task<IReadOnlyList<DuetAwardCandidate>> GetDuetAwardsCandidatesAsync();
 }

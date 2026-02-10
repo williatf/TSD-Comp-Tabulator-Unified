@@ -212,7 +212,7 @@
             </TabItem>
 
             <!-- Class Order tab: new enhancement UI -->
-            <TabItem Header="Class Order" Height="20" VerticalAlignment="Top">
+            <TabItem Header="Classes" Height="20" VerticalAlignment="Top">
                 <Grid Margin="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
