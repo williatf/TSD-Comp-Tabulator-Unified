@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Tsd.Tabulator.Core.Models;
 using Tsd.Tabulator.Core.Reports;
-using Tsd.Tabulator.Core.Services;
+using Tsd.Tabulator.Application.Interfaces;
 
 namespace Tsd.Tabulator.Wpf.ViewModels.Reports;
 

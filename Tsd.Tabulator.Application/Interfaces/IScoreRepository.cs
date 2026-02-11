@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Core.Models;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Application.Interfaces;
 
 public interface IScoreRepository
 {

@@ -1,8 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using Tsd.Tabulator.Application.Interfaces;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Application.Services;
 
 public sealed class FingerprintService : IFingerprintService
 {

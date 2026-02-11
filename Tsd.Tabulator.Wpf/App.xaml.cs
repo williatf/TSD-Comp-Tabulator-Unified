@@ -1,8 +1,10 @@
 ﻿using System.Windows;
+using System.Runtime.Versioning;
 
 namespace Tsd.Tabulator.Wpf;
 
-public partial class App : Application
+[SupportedOSPlatform("windows")]
+public partial class App : System.Windows.Application
 {
     private readonly Bootstrapper _bootstrapper;
 

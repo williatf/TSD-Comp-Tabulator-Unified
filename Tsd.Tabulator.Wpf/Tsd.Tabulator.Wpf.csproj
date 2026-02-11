@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Tsd.Tabulator.Application\Tsd.Tabulator.Application.csproj" />
     <ProjectReference Include="..\Tsd.Tabulator.Core\Tsd.Tabulator.Core.csproj" />
     <ProjectReference Include="..\Tsd.Tabulator.Data.Sqlite\Tsd.Tabulator.Data.Sqlite.csproj" />
   </ItemGroup>

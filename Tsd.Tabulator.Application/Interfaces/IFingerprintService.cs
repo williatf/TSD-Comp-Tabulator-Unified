@@ -1,4 +1,4 @@
-﻿namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Application.Interfaces;
 
 public interface IFingerprintService
 {

@@ -1,11 +1,9 @@
 ﻿using Caliburn.Micro;
 using Microsoft.Win32;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Core.Scoring;
-using Tsd.Tabulator.Core.Services;
+using Tsd.Tabulator.Application.Interfaces;
 using Tsd.Tabulator.Data.Sqlite;
 using Tsd.Tabulator.Data.Sqlite.Import;
 using Tsd.Tabulator.Data.Sqlite.Scoring;
@@ -141,7 +139,7 @@ public sealed class ShellViewModel : Conductor<IScreen>.Collection.OneActive
         await cmd.ExecuteNonQueryAsync();
     }
 
-    public void CloseApp() => Application.Current.Shutdown();
+    public void CloseApp() => System.Windows.Application.Current.Shutdown();
 
     public void ShowReportsView()
     {

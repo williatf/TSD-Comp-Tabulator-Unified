@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Tsd.Tabulator.Application\Tsd.Tabulator.Application.csproj" />
     <ProjectReference Include="..\Tsd.Tabulator.Core\Tsd.Tabulator.Core.csproj" />
   </ItemGroup>
 

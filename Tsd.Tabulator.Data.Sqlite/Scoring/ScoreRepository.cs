@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Core.Services;
+using Tsd.Tabulator.Application.Interfaces;
 
 namespace Tsd.Tabulator.Data.Sqlite.Scoring;
 
