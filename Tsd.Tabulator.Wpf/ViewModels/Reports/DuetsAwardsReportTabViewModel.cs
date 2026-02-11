@@ -9,7 +9,6 @@ using System.Windows;
 using Caliburn.Micro;
 using Microsoft.Win32;
 using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Application.Interfaces;
 
 namespace Tsd.Tabulator.Wpf.ViewModels.Reports;

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using Tsd.Tabulator.Core.Configuration;
 using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Core.Scoring;
 using Tsd.Tabulator.Application.Interfaces;
+using Tsd.Tabulator.Application.Services;
 using Tsd.Tabulator.Wpf.ViewModels.Scoring;
 
 namespace Tsd.Tabulator.Wpf.ViewModels;

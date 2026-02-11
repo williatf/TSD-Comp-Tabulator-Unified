@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Tsd.Tabulator.Core.Reports;
+namespace Tsd.Tabulator.Application.Interfaces;
 
 /// <summary>
 /// Represents a tab that displays a report.

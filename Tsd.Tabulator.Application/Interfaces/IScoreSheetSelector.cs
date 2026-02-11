@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Core.Models;
 
-namespace Tsd.Tabulator.Core.Scoring;
+namespace Tsd.Tabulator.Application.Interfaces;
 
 /// <summary>
 /// Determines which score sheets are available for a given competition type and routine.

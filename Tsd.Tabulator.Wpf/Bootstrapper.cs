@@ -5,6 +5,7 @@ using Caliburn.Micro;
 using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Application.Interfaces;
 using Tsd.Tabulator.Application.Services;
+using Tsd.Tabulator.Application.UseCases;
 using Tsd.Tabulator.Data.Sqlite;
 using Tsd.Tabulator.Data.Sqlite.Scoring;
 using Tsd.Tabulator.Wpf.Reports;

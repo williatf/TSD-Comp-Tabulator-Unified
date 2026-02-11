@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tsd.Tabulator.Application.Interfaces;
 
-namespace Tsd.Tabulator.Core.Reports;
+namespace Tsd.Tabulator.Application.Services;
 
 /// <summary>
 /// Default implementation of IReportCatalog that provides access to available report definitions.

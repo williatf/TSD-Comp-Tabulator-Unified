@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using Tsd.Tabulator.Core.Scoring;
+using Tsd.Tabulator.Application.Services;
 
 namespace Tsd.Tabulator.Tests.Scoring
 {

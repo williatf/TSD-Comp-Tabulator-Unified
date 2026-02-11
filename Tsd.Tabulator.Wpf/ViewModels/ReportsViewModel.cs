@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tsd.Tabulator.Application.Interfaces;
 using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Wpf.Reports;
 

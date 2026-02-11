@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Tsd.Tabulator.Core.Reports;
+namespace Tsd.Tabulator.Application.Interfaces;
 
 /// <summary>
 /// Provides access to available report definitions.

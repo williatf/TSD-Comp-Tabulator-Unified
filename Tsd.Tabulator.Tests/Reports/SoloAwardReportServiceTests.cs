@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Application.Services;
+using Tsd.Tabulator.Application.UseCases;
 using Tsd.Tabulator.Application.Interfaces;
 using Xunit;
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tsd.Tabulator.Core.Reports;
+namespace Tsd.Tabulator.Application.Interfaces;
 
 /// <summary>
 /// Defines a report that can be generated.

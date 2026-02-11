@@ -1,5 +1,5 @@
 using Caliburn.Micro;
-using Tsd.Tabulator.Core.Reports;
+using Tsd.Tabulator.Application.Interfaces;
 using Tsd.Tabulator.Wpf.ViewModels.Reports;
 
 namespace Tsd.Tabulator.Wpf.Reports;

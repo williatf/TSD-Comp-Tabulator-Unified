@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tsd.Tabulator.Core.Scoring;
 
-namespace Tsd.Tabulator.Core.Scoring;
+namespace Tsd.Tabulator.Application.Interfaces;
 
 /// <summary>
 /// Defines the structure of a score sheet including criteria, judges, and metadata.

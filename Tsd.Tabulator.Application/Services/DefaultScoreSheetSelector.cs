@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Core.Models;
+using Tsd.Tabulator.Application.Interfaces;
 
-namespace Tsd.Tabulator.Core.Scoring;
+namespace Tsd.Tabulator.Application.Services;
 
 /// <summary>
 /// Default implementation of score sheet selection logic.

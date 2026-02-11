@@ -2,34 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Tsd.Tabulator.Application.Interfaces;
 using Tsd.Tabulator.Core.Models;
+using Tsd.Tabulator.Application.Interfaces;
 
-namespace Tsd.Tabulator.Application.Services;
+namespace Tsd.Tabulator.Application.UseCases;
 
 /// <summary>
-/// Generates duet award reports using the event DB's class snapshot for ordering and bucket resolution.
+/// Generates solo award reports using the event DB's class snapshot for ordering and bucket resolution.
 /// </summary>
-public sealed class DuetAwardReportService : IDuetAwardReportService
+public sealed class SoloAwardReportService : ISoloAwardReportService
 {
     private readonly IScoreRepository _repository;
     private readonly IClassConfigService _classConfig;
     private readonly string _eventDbPath;
     private const int MaxEntriesPerGroup = 12;
 
-    public DuetAwardReportService(IScoreRepository repository, IClassConfigService classConfigService, string eventDbPath)
+    public SoloAwardReportService(IScoreRepository repository, IClassConfigService classConfigService, string eventDbPath)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _classConfig = classConfigService ?? throw new ArgumentNullException(nameof(classConfigService));
         _eventDbPath = eventDbPath ?? throw new ArgumentNullException(nameof(eventDbPath));
     }
 
-    public async Task<DuetAwardReport> GenerateReportAsync()
+    public async Task<SoloAwardReport> GenerateReportAsync()
     {
-        var candidates = (await _repository.GetDuetAwardsCandidatesAsync()).ToList();
+        var candidates = (await _repository.GetSoloAwardsCandidatesAsync()).ToList();
 
         // Resolve class keys for each candidate using the event snapshot
-        var enriched = new List<(DuetAwardCandidate Candidate, string? ClassKey)>();
+        var enriched = new List<(SoloAwardCandidate Candidate, string? ClassKey)>();
         foreach (var c in candidates)
         {
             var key = await _classConfig.ResolveClassKeyAsync(c.Class, _eventDbPath);
@@ -70,21 +70,21 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
             .ThenBy(g => g.DisplayName)
             .ToList();
 
-        var groupsResult = new List<DuetAwardGroup>();
+        var groupsResult = new List<SoloAwardGroup>();
         foreach (var g in groups)
         {
             groupsResult.Add(CreateGroup(g.Bucket, g.DisplayName, g.Candidates));
         }
 
-        return new DuetAwardReport(groupsResult);
+        return new SoloAwardReport(groupsResult);
     }
 
-    private static DuetAwardGroup CreateGroup(string bucket, string @class, IEnumerable<DuetAwardCandidate> candidates)
+    private static SoloAwardGroup CreateGroup(string bucket, string @class, IEnumerable<SoloAwardCandidate> candidates)
     {
         // Sort by FinalScore descending
         var sorted = candidates.OrderByDescending(c => c.FinalScore).ToList();
 
-        var entries = new List<DuetAwardEntry>();
+        var entries = new List<SoloAwardEntry>();
         int currentPlace = 1;
         double? previousScore = null;
         int countAtCurrentScore = 0;
@@ -116,7 +116,7 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
                 previousScore = candidate.FinalScore;
             }
 
-            entries.Add(new DuetAwardEntry(
+            entries.Add(new SoloAwardEntry(
                 currentPlace,
                 candidate.FinalScore,
                 candidate.ProgramNumber,
@@ -128,6 +128,6 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
             totalEntriesAdded++;
         }
 
-        return new DuetAwardGroup(bucket, @class, entries);
+        return new SoloAwardGroup(bucket, @class, entries);
     }
 }

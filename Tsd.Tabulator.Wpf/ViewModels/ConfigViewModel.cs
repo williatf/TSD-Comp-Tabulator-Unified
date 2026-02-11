@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Core.Models;
 using Tsd.Tabulator.Application.Interfaces;
-using Tsd.Tabulator.Core.Scoring;
+using Tsd.Tabulator.Application.Services;
 using Tsd.Tabulator.Data.Sqlite;
 using System.Windows;
 using Tsd.Tabulator.Data.Sqlite.Scoring;
