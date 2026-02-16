@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Runtime.Versioning;
 using Caliburn.Micro;
-using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Application.Interfaces;
+using Tsd.Tabulator.Application.Interfaces.Reporting;
 using Tsd.Tabulator.Application.Services;
-using Tsd.Tabulator.Application.UseCases;
+using Tsd.Tabulator.Wpf.Reports;
+using Tsd.Tabulator.Wpf.Reports.Schemes;
+using Tsd.Tabulator.Application.Reports;
+using Tsd.Tabulator.Application.Reports.Loaders;
 using Tsd.Tabulator.Data.Sqlite;
 using Tsd.Tabulator.Data.Sqlite.Scoring;
-using Tsd.Tabulator.Wpf.Reports;
 using Tsd.Tabulator.Wpf.ViewModels;
-using Tsd.Tabulator.Wpf.ViewModels.Reports;
+using Tsd.Tabulator.Core.Models;
+using Tsd.Tabulator.Wpf.Helpers;
 
 namespace Tsd.Tabulator.Wpf;
 
@@ -32,69 +35,44 @@ public sealed class Bootstrapper : BootstrapperBase
         
         // Core services
         _container.Singleton<IFingerprintService, FingerprintService>();
-        
-        // Class config service (manages master-config and event snapshots)
         _container.Singleton<IClassConfigService, ClassConfigService>();
         
         // Shell (singleton - the event context)
         _container.Singleton<ShellViewModel>();
-        
-        // Report configuration (singleton)
-        _container.Singleton<ReportConfiguration>();
-        
-        // Report infrastructure
-        _container.RegisterHandler(typeof(IReportCatalog), null, c => 
+
+        // Event context
+        _container.Singleton<IEventContext, EventContext>();
+
+        // === NEW: Report scheme infrastructure ===
+        _container.RegisterHandler(typeof(IReportSchemeProvider), null, c =>
         {
-            var definitions = c.GetAllInstances(typeof(IReportDefinition))
-                .Cast<IReportDefinition>();
-            return new ReportCatalog(definitions);
+            // Get ALL registered scheme objects (concrete classes)
+            var schemes = c.GetAllInstances(typeof(object))
+                           .Where(o => o is IReportSchemeUiBase)   // see below
+                           .ToList();
+
+            return new ReportSchemeProvider(schemes);
         });
-        
-        // Register all report definitions (without keys so GetAllInstances can find them)
-        _container.Singleton<IReportDefinition, SoloAwardsReportDefinition>();
-        _container.Singleton<IReportDefinition, DuetsAwardsReportDefinition>();
-        
-        // Report ViewModels (per-request)
-        _container.PerRequest<ReportsViewModel>();
-        _container.PerRequest<SoloAwardsReportTabViewModel>();
-        _container.PerRequest<DuetsAwardsReportTabViewModel>();
-        
-        // Report services (per-request to get fresh repository)
-        _container.RegisterHandler(typeof(ISoloAwardReportService), null, c =>
-        {
-            var shell = c.GetInstance(typeof(ShellViewModel), null) as ShellViewModel;
-            if (shell == null || !shell.HasEventLoaded)
-                throw new InvalidOperationException("No event is currently open.");
-            
-            var factory = new SqliteConnectionFactory(shell.CurrentDbPath!);
-            var scoreRepo = new ScoreRepository(factory);
 
-            var classConfig = c.GetInstance(typeof(IClassConfigService), null) as IClassConfigService
-                              ?? throw new InvalidOperationException("IClassConfigService not registered.");
+        // Register all IReportScheme implementations
+        _container.Singleton<object, SoloAwardsReportScheme>();
+        // _container.Singleton<IReportScheme, DuetAwardsReportScheme>(); // when created
 
-            return new SoloAwardReportService(scoreRepo, classConfig, shell.CurrentDbPath!);
-        });
-        
-        _container.RegisterHandler(typeof(IDuetAwardReportService), null, c =>
-        {
-            var shell = c.GetInstance(typeof(ShellViewModel), null) as ShellViewModel;
-            if (shell == null || !shell.HasEventLoaded)
-                throw new InvalidOperationException("No event is currently open.");
-            
-            var factory = new SqliteConnectionFactory(shell.CurrentDbPath!);
-            var scoreRepo = new ScoreRepository(factory);
+        // Add factory registration
+        _container.Singleton<IScoreRepositoryFactory, ScoreRepositoryFactory>();
 
-            var classConfig = c.GetInstance(typeof(IClassConfigService), null) as IClassConfigService
-                              ?? throw new InvalidOperationException("IClassConfigService not registered.");
+        // Register loaders as singletons
+        _container.Singleton<IReportDataLoader<SoloAwardCandidate>, SoloAwardsDataLoader>();
+        //_container.Singleton<IReportDataLoader<DuetAwardCandidate>, DuetAwardsDataLoader>();
 
-            return new DuetAwardReportService(scoreRepo, classConfig, shell.CurrentDbPath!);
-        });
-        
-        // Dialogs
-        _container.PerRequest<NewEventDialogViewModel>();
+        _container.Singleton<ReportDataLoaderRegistry>();
+        var registry = _container.GetInstance<ReportDataLoaderRegistry>();
+        registry.Initialize(_container);
 
-        // Register ConfigViewModel for view resolution if needed (optional)
-        _container.PerRequest<ConfigViewModel>();
+        _container.Singleton<ReportsViewModel>();
+
+        LogManager.GetLog = type => new DebugLog(type);
+
     }
 
     protected override object GetInstance(Type service, string key)
@@ -110,5 +88,30 @@ public sealed class Bootstrapper : BootstrapperBase
     protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
     {
         DisplayRootViewForAsync<ShellViewModel>().GetAwaiter().GetResult();
+    }
+
+    public class DebugLog : ILog
+    {
+        private readonly Type _type;
+
+        public DebugLog(Type type)
+        {
+            _type = type;
+        }
+
+        public void Error(Exception exception)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ERROR] {_type.Name}: {exception}");
+        }
+
+        public void Info(string format, params object[] args)
+        {
+            System.Diagnostics.Debug.WriteLine($"[INFO] {_type.Name}: {string.Format(format, args)}");
+        }
+
+        public void Warn(string format, params object[] args)
+        {
+            System.Diagnostics.Debug.WriteLine($"[WARN] {_type.Name}: {string.Format(format, args)}");
+        }
     }
 }

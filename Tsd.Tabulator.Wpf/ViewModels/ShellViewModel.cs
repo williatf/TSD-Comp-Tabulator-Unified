@@ -15,6 +15,8 @@ public sealed class ShellViewModel : Conductor<IScreen>.Collection.OneActive
     internal readonly IFingerprintService _fingerprints;
     private readonly IWindowManager _windowManager;
     private readonly IClassConfigService _classConfigService;
+    private readonly IEventContext _eventContext;
+    
     public string? CurrentEventFolder { get; private set; }
     public string? CurrentDbPath { get; private set; }
     
@@ -28,16 +30,18 @@ public sealed class ShellViewModel : Conductor<IScreen>.Collection.OneActive
             if (_currentCompetitionType == value) return;
             _currentCompetitionType = value;
             NotifyOfPropertyChange(() => CurrentCompetitionType);
+            _eventContext.UpdateCompetitionType(value); // Use the method instead
         }
     }
 
     public bool HasEventLoaded => !string.IsNullOrWhiteSpace(CurrentDbPath);
 
-    public ShellViewModel(IWindowManager windowManager, IFingerprintService fingerprints, IClassConfigService classConfigService)
+    public ShellViewModel(IWindowManager windowManager, IFingerprintService fingerprints, IClassConfigService classConfigService, IEventContext eventContext)
     {
         _fingerprints = fingerprints;
         _windowManager = windowManager;
         _classConfigService = classConfigService;
+        _eventContext = eventContext;
     }
 
     protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
@@ -83,6 +87,7 @@ public sealed class ShellViewModel : Conductor<IScreen>.Collection.OneActive
         }
 
         CurrentDbPath = dbPath;
+        _eventContext.UpdateEventDbPath(dbPath); // Use the method instead
         CurrentEventFolder = Path.GetDirectoryName(dbPath);
 
         // Save this as the last opened event
@@ -123,6 +128,7 @@ public sealed class ShellViewModel : Conductor<IScreen>.Collection.OneActive
             CurrentCompetitionType = CompetitionType.TSDance;
             await SaveCompetitionTypeAsync(factory);
         }
+
     }
 
     private async Task SaveCompetitionTypeAsync(SqliteConnectionFactory factory)

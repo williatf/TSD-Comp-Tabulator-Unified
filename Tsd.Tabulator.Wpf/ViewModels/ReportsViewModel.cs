@@ -1,35 +1,42 @@
 using Caliburn.Micro;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Application.Interfaces;
-using Tsd.Tabulator.Core.Reports;
+using Tsd.Tabulator.Application.Interfaces.Reporting;
+using Tsd.Tabulator.Application.Reports;
+using Tsd.Tabulator.Core.Models;
 using Tsd.Tabulator.Wpf.Reports;
+using Tsd.Tabulator.Wpf.ViewModels;
 
 namespace Tsd.Tabulator.Wpf.ViewModels;
 
-/// <summary>
-/// Host ViewModel for tabbed reports. Auto-loads report data when activated.
-/// </summary>
 public sealed class ReportsViewModel : Conductor<IScreen>.Collection.OneActive
 {
     private readonly ShellViewModel _shell;
-    private readonly IReportCatalog _reportCatalog;
-    private readonly ReportConfiguration _reportConfig;
+    private readonly IReportSchemeProvider _schemeProvider;
+    private readonly IEventContext _eventContext;
+    private readonly ReportDataLoaderRegistry _registry;
+
     private bool _isRefreshing;
 
-    public ReportsViewModel(ShellViewModel shell, IReportCatalog reportCatalog, ReportConfiguration reportConfig)
+    public ReportsViewModel(
+        ShellViewModel shell,
+        IReportSchemeProvider schemeProvider,
+        IEventContext eventContext,
+        ReportDataLoaderRegistry registry)
     {
         _shell = shell;
-        _reportCatalog = reportCatalog;
-        _reportConfig = reportConfig;
+        _schemeProvider = schemeProvider;
+        _eventContext = eventContext;
+        _registry = registry;
+
         DisplayName = "Reports";
     }
 
     public bool HasEventLoaded => _shell.HasEventLoaded;
-    
+
     public bool IsRefreshing
     {
         get => _isRefreshing;
@@ -45,94 +52,43 @@ public sealed class ReportsViewModel : Conductor<IScreen>.Collection.OneActive
 
     protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
     {
-
         if (!HasEventLoaded)
         {
-            // Clear any existing tabs
             Items.Clear();
             return;
         }
 
-        // Build tabs from catalog based on current competition type
         await BuildTabsAsync();
-        
-        // Auto-load data for the active tab
         await RefreshAsync();
     }
 
+    // Store tabs as IReportTab
+    //public new List<IReportTab> Items { get; } = new();
+
     private async Task BuildTabsAsync()
     {
-        // Get ordered list of report IDs for current competition type
-        var reportIds = _reportConfig.GetReportsFor(_shell.CurrentCompetitionType);
-        
-        System.Diagnostics.Debug.WriteLine($"Building tabs for {_shell.CurrentCompetitionType}, found {reportIds.Count} report IDs: {string.Join(", ", reportIds)}");
-        
-        // Resolve report definitions in the specified order
-        var reportDefs = reportIds
-            .Select(id => 
-            {
-                try 
-                { 
-                    var report = _reportCatalog.GetReport(id);
-                    System.Diagnostics.Debug.WriteLine($"  Found report: {id} -> {report.DisplayName}");
-                    return report; 
-                }
-                catch (Exception ex)
-                { 
-                    System.Diagnostics.Debug.WriteLine($"  Failed to load report '{id}': {ex.Message}");
-                    return null; // Skip reports that aren't registered
-                }
-            })
-            .Where(r => r != null)
-            .Select(r => r!) // Use null-forgiving operator to assert non-null
-            .ToList();
+        var compType = _eventContext.CompetitionType;
+        var schemes = _schemeProvider.GetSchemesFor(compType).ToList();
 
-        System.Diagnostics.Debug.WriteLine($"Successfully loaded {reportDefs.Count} report definitions");
-
-        // If tabs already match, don't rebuild
-        if (Items.Count == reportDefs.Count && 
-            Items.Zip(reportDefs, (item, def) => item.DisplayName == def.DisplayName).All(x => x))
-        {
-            System.Diagnostics.Debug.WriteLine("Tabs already match, skipping rebuild");
-            return; // Tabs already built
-        }
-
-        // Clear and rebuild
         Items.Clear();
-        
-        foreach (var reportDef in reportDefs)
-        {
-            try
-            {
-                var tab = reportDef.CreateViewModel() as IScreen;
-                if (tab != null)
-                {
-                    Items.Add(tab);
-                    System.Diagnostics.Debug.WriteLine($"  Added tab: {reportDef.DisplayName}");
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine($"  Warning: CreateViewModel for '{reportDef.DisplayName}' did not return IScreen");
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"  Failed to create tab for '{reportDef.DisplayName}': {ex.Message}");
-            }
-        }
 
-        System.Diagnostics.Debug.WriteLine($"Final tab count: {Items.Count}");
-
-        // Activate first tab
-        if (Items.Any())
+        foreach (IReportSchemeUiBase scheme in schemes)
         {
-            await ActivateItemAsync(Items.First(), CancellationToken.None);
+            // 1. Extract the generic type parameter T from the scheme
+            var t = scheme.DataType;
+
+            // 2. Resolve the loader for that T
+            var loader = _registry.GetLoader(t);
+
+            // 3. Create the tab dynamically
+            var tab = scheme.CreateTabDynamic(loader, _eventContext);
+
+            Items.Add((IScreen)tab);
         }
     }
 
     /// <summary>
     /// Refreshes the active report tab.
-    /// Called automatically on activation or manually via Refresh button.
     /// </summary>
     public async Task RefreshAsync()
     {
@@ -143,15 +99,11 @@ public sealed class ReportsViewModel : Conductor<IScreen>.Collection.OneActive
 
         try
         {
-            var activeTab = ActiveItem as IReportTab;
-            if (activeTab != null)
-            {
+            if (ActiveItem is IReportTab activeTab)
                 await activeTab.RefreshAsync();
-            }
         }
         catch (Exception ex)
         {
-            // Log error but don't crash
             System.Diagnostics.Debug.WriteLine($"Report refresh failed: {ex.Message}");
         }
         finally
@@ -160,9 +112,6 @@ public sealed class ReportsViewModel : Conductor<IScreen>.Collection.OneActive
         }
     }
 
-    /// <summary>
-    /// Manual refresh triggered by button click.
-    /// </summary>
     public new async void Refresh()
     {
         await RefreshAsync();
@@ -170,11 +119,8 @@ public sealed class ReportsViewModel : Conductor<IScreen>.Collection.OneActive
 
     protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
     {
-        // Deactivate all tabs to clean up resources
         foreach (var item in Items.ToList())
-        {
             await DeactivateItemAsync(item, close, cancellationToken);
-        }
 
         await base.OnDeactivateAsync(close, cancellationToken);
     }

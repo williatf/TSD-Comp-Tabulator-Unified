@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tsd.Tabulator.Core\Tsd.Tabulator.Core.csproj" />
+    <Compile Remove="Reports\ReportDataLoaderRegistry.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Reports\" />
+    <ProjectReference Include="..\Tsd.Tabulator.Core\Tsd.Tabulator.Core.csproj" />
   </ItemGroup>
 
 </Project>
