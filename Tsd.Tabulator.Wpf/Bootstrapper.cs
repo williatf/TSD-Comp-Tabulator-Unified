@@ -54,6 +54,7 @@ public sealed class Bootstrapper : BootstrapperBase
         
         // Report ViewModels (per-request)
         _container.PerRequest<ReportsViewModel>();
+        _container.PerRequest<ReportViewModel>();
         _container.PerRequest<SoloAwardsReportTabViewModel>();
         _container.PerRequest<DuetsAwardsReportTabViewModel>();
         

@@ -152,7 +152,7 @@ public sealed class ShellViewModel : Conductor<IScreen>.Collection.OneActive
         }
         
         // Create ReportsViewModel - it will get ShellViewModel via IoC
-        var reportsVM = IoC.Get<ReportsViewModel>();
+        var reportsVM = IoC.Get<ReportViewModel>();
         ActivateItemAsync(reportsVM, default);
     }
 
