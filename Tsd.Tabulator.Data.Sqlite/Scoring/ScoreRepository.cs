@@ -127,7 +127,6 @@ public sealed class ScoreRepository : IScoreRepository
         // 4. De-duplicates participants keeping best score per bucket
         var results = await conn.QueryAsync<SoloAwardCandidate>(@"
             WITH ScoredRoutines AS (
-                -- Get all solo routines with their scores
                 SELECT 
                     r.RoutineId,
                     r.ProgramNumber,
@@ -136,13 +135,7 @@ public sealed class ScoreRepository : IScoreRepository
                     r.ParticipantsRaw AS Participants,
                     r.StudioName,
                     r.RoutineTitle,
-                    rss.LastSheetKey,
-                    -- Determine bucket
-                    CASE 
-                        WHEN r.Class LIKE '%School%' THEN 'School'
-                        WHEN r.Class LIKE '%Studio%' THEN 'Studio'
-                        ELSE NULL
-                    END AS Bucket
+                    rss.LastSheetKey
                 FROM Routine r
                 INNER JOIN RoutineScoreStatus rss ON r.RoutineId = rss.RoutineId
                 WHERE r.EntryTypeRaw LIKE '%Solo%'
@@ -150,10 +143,8 @@ public sealed class ScoreRepository : IScoreRepository
                     AND rss.IsScored = 1
             ),
             JudgeTotals AS (
-                -- Compute sum of all criteria per judge per routine
                 SELECT 
                     sr.RoutineId,
-                    sr.Bucket,
                     sr.Class,
                     sr.Participants,
                     sr.ProgramNumber,
@@ -165,14 +156,12 @@ public sealed class ScoreRepository : IScoreRepository
                 INNER JOIN RoutineScoreCell rsc 
                     ON sr.RoutineId = rsc.RoutineId 
                     AND sr.LastSheetKey = rsc.SheetKey
-                GROUP BY sr.RoutineId, sr.Bucket, sr.Class, sr.Participants, 
+                GROUP BY sr.RoutineId, sr.Class, sr.Participants, 
                          sr.ProgramNumber, sr.StudioName, sr.RoutineTitle, rsc.JudgeIndex
             ),
             RoutineScores AS (
-                -- Average judge totals to get final score
                 SELECT 
                     RoutineId,
-                    Bucket,
                     Class,
                     Participants,
                     ProgramNumber,
@@ -180,22 +169,18 @@ public sealed class ScoreRepository : IScoreRepository
                     RoutineTitle,
                     AVG(JudgeTotal) AS FinalScore
                 FROM JudgeTotals
-                WHERE Bucket IS NOT NULL  -- Exclude routines that don't match School or Studio
-                GROUP BY RoutineId, Bucket, Class, Participants, ProgramNumber, StudioName, RoutineTitle
+                GROUP BY RoutineId, Class, Participants, ProgramNumber, StudioName, RoutineTitle
             ),
             RankedRoutines AS (
-                -- Rank routines per participant per bucket (best score = rank 1)
                 SELECT 
                     *,
                     ROW_NUMBER() OVER (
-                        PARTITION BY Bucket, Participants 
+                        PARTITION BY Participants 
                         ORDER BY FinalScore DESC
                     ) AS RoutineRank
                 FROM RoutineScores
             )
-            -- Keep only the best routine per participant per bucket
             SELECT 
-                Bucket,
                 Class,
                 Participants,
                 ProgramNumber,
@@ -204,7 +189,7 @@ public sealed class ScoreRepository : IScoreRepository
                 FinalScore
             FROM RankedRoutines
             WHERE RoutineRank = 1
-            ORDER BY Bucket, Class, FinalScore DESC
+            ORDER BY Class, FinalScore DESC;
         ");
         
         return results.AsList();
@@ -221,7 +206,6 @@ public sealed class ScoreRepository : IScoreRepository
         // 4. De-duplicates participants keeping best score per bucket
         var results = await conn.QueryAsync<DuetAwardCandidate>(@"
             WITH ScoredRoutines AS (
-                -- Get all duet routines with their scores
                 SELECT 
                     r.RoutineId,
                     r.ProgramNumber,
@@ -230,13 +214,7 @@ public sealed class ScoreRepository : IScoreRepository
                     r.ParticipantsRaw AS Participants,
                     r.StudioName,
                     r.RoutineTitle,
-                    rss.LastSheetKey,
-                    -- Determine bucket
-                    CASE 
-                        WHEN r.Class LIKE '%School%' THEN 'School'
-                        WHEN r.Class LIKE '%Studio%' THEN 'Studio'
-                        ELSE NULL
-                    END AS Bucket
+                    rss.LastSheetKey
                 FROM Routine r
                 INNER JOIN RoutineScoreStatus rss ON r.RoutineId = rss.RoutineId
                 WHERE r.EntryTypeRaw LIKE '%Duet%'
@@ -244,10 +222,8 @@ public sealed class ScoreRepository : IScoreRepository
                     AND rss.IsScored = 1
             ),
             JudgeTotals AS (
-                -- Compute sum of all criteria per judge per routine
                 SELECT 
                     sr.RoutineId,
-                    sr.Bucket,
                     sr.Class,
                     sr.Participants,
                     sr.ProgramNumber,
@@ -259,14 +235,12 @@ public sealed class ScoreRepository : IScoreRepository
                 INNER JOIN RoutineScoreCell rsc 
                     ON sr.RoutineId = rsc.RoutineId 
                     AND sr.LastSheetKey = rsc.SheetKey
-                GROUP BY sr.RoutineId, sr.Bucket, sr.Class, sr.Participants, 
+                GROUP BY sr.RoutineId, sr.Class, sr.Participants, 
                          sr.ProgramNumber, sr.StudioName, sr.RoutineTitle, rsc.JudgeIndex
             ),
             RoutineScores AS (
-                -- Average judge totals to get final score
                 SELECT 
                     RoutineId,
-                    Bucket,
                     Class,
                     Participants,
                     ProgramNumber,
@@ -274,22 +248,18 @@ public sealed class ScoreRepository : IScoreRepository
                     RoutineTitle,
                     AVG(JudgeTotal) AS FinalScore
                 FROM JudgeTotals
-                WHERE Bucket IS NOT NULL  -- Exclude routines that don't match School or Studio
-                GROUP BY RoutineId, Bucket, Class, Participants, ProgramNumber, StudioName, RoutineTitle
+                GROUP BY RoutineId, Class, Participants, ProgramNumber, StudioName, RoutineTitle
             ),
             RankedRoutines AS (
-                -- Rank routines per participant per bucket (best score = rank 1)
                 SELECT 
                     *,
                     ROW_NUMBER() OVER (
-                        PARTITION BY Bucket, Participants 
+                        PARTITION BY Participants 
                         ORDER BY FinalScore DESC
                     ) AS RoutineRank
                 FROM RoutineScores
             )
-            -- Keep only the best routine per participant per bucket
             SELECT 
-                Bucket,
                 Class,
                 Participants,
                 ProgramNumber,
@@ -298,7 +268,7 @@ public sealed class ScoreRepository : IScoreRepository
                 FinalScore
             FROM RankedRoutines
             WHERE RoutineRank = 1
-            ORDER BY Bucket, Class, FinalScore DESC
+            ORDER BY Class, FinalScore DESC;
         ");
         
         return results.AsList();

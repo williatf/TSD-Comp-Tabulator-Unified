@@ -2,7 +2,7 @@
 
 ## A Complete Architectural Overview
 
-This document describes the metadata-driven reporting framework used in the TSD Tabulator application. The system supports multiple competition types (Solo, Duet, Trio, Ensemble, etc.) through a generic, extensible, type-safe architecture that cleanly separates data, logic, and UI.
+This document describes the metadata-driven reporting framework used in the TSD Tabulator application. The system supports multiple routine types (Solo, Duet, Trio, Ensemble, etc.) through a generic, extensible, type-safe architecture that cleanly separates data, logic, and UI.
 
 The framework is composed of:
 
