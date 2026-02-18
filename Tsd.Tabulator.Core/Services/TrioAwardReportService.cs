@@ -2,14 +2,14 @@
 
 namespace Tsd.Tabulator.Core.Services;
 
-public sealed class DuetAwardReportService : IDuetAwardReportService
+public sealed class TrioAwardReportService : ITrioAwardReportService
 {
     private readonly IScoreRepository _repository;
     private readonly IClassConfigService _classConfig;
     private readonly string _eventDbPath;
     private const int MaxEntriesPerGroup = 12;
 
-    public DuetAwardReportService(
+    public TrioAwardReportService(
         IScoreRepository repository,
         IClassConfigService classConfigService,
         string eventDbPath)
@@ -19,12 +19,12 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
         _eventDbPath = eventDbPath ?? throw new ArgumentNullException(nameof(eventDbPath));
     }
 
-    public async Task<DuetAwardReport> GenerateReportAsync()
+    public async Task<TrioAwardReport> GenerateReportAsync()
     {
         var candidates = await LoadCandidatesAsync();
 
         // Resolve class keys
-        var enriched = new List<(DuetAwardCandidate Candidate, string? ClassKey)>();
+        var enriched = new List<(TrioAwardCandidate Candidate, string? ClassKey)>();
         foreach (var c in candidates)
         {
             var key = await _classConfig.ResolveClassKeyAsync(c.Class, _eventDbPath);
@@ -67,7 +67,7 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
             .ThenBy(g => g.DisplayName)
             .ToList();
 
-        var groupsResult = new List<DuetAwardGroup>();
+        var groupsResult = new List<TrioAwardGroup>();
         foreach (var g in groups)
         {
             groupsResult.Add(await CreateGroup(
@@ -77,14 +77,14 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
                 _eventDbPath));
         }
 
-        return new DuetAwardReport(groupsResult);
+        return new TrioAwardReport(groupsResult);
     }
 
-    private async Task<IReadOnlyList<DuetAwardCandidate>> LoadCandidatesAsync()
+    private async Task<IReadOnlyList<TrioAwardCandidate>> LoadCandidatesAsync()
     {
-        var routines = await _repository.GetScoredRoutinesAsync("%Duet%");
+        var routines = await _repository.GetScoredRoutinesAsync("%Trio%");
 
-        var candidates = new List<DuetAwardCandidate>();
+        var candidates = new List<TrioAwardCandidate>();
 
         foreach (var r in routines)
         {
@@ -97,7 +97,7 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
 
             var finalScore = judgeTotals.Average();
 
-            candidates.Add(new DuetAwardCandidate
+            candidates.Add(new TrioAwardCandidate
             {
                 Class = r.Class,
                 Participants = r.Participants,
@@ -111,14 +111,14 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
         return candidates;
     }
 
-    private static async Task<DuetAwardGroup> CreateGroup(
+    private static async Task<TrioAwardGroup> CreateGroup(
         string bucket,
         string classKey,
-        IEnumerable<DuetAwardCandidate> candidates,
+        IEnumerable<TrioAwardCandidate> candidates,
         string eventDbPath)
     {
         var sorted = candidates.OrderByDescending(c => c.FinalScore).ToList();
-        var entries = new List<DuetAwardEntry>();
+        var entries = new List<TrioAwardEntry>();
         int currentPlace = 1;
         double? previousScore = null;
         int countAtCurrentScore = 0;
@@ -144,7 +144,7 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
                 previousScore = candidate.FinalScore;
             }
 
-            entries.Add(new DuetAwardEntry(
+            entries.Add(new TrioAwardEntry(
                 currentPlace,
                 candidate.FinalScore,
                 candidate.ProgramNumber,
@@ -157,6 +157,6 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
             totalEntriesAdded++;
         }
 
-        return new DuetAwardGroup(bucket, classKey, entries);
+        return new TrioAwardGroup(bucket, classKey, entries);
     }
 }

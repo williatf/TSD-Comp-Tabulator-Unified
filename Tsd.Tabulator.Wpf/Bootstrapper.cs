@@ -72,13 +72,18 @@ public sealed class Bootstrapper : BootstrapperBase
         // Solo Awards report dependencies
         _container.Singleton<IReportScheme, SoloAwardsScheme>();
         _container.Singleton<IReportLoader<SoloAwardEntry>, SoloAwardsLoaderAdapter>();
-        _container.PerRequest<ReportTabViewModel<SoloAwardEntry>>();
+        //_container.PerRequest<ReportTabViewModel<SoloAwardEntry>>();
         _container.PerRequest<SoloAwardsReportTabViewModel>();
 
         // Duet Awards report dependencies
         _container.Singleton<IReportScheme, DuetAwardsScheme>();
         _container.Singleton<IReportLoader<DuetAwardEntry>, DuetAwardsLoaderAdapter>();
         _container.PerRequest<DuetsAwardsReportTabViewModel>();
+
+        // Trio Awards report dependencies
+        _container.Singleton<IReportScheme, TrioAwardsScheme>();
+        _container.Singleton<IReportLoader<TrioAwardEntry>, TrioAwardsLoaderAdapter>();
+        _container.PerRequest<TrioAwardsReportTabViewModel>();
 
         // Report ViewModels (per-request)
         _container.PerRequest<ReportsViewModel>();
@@ -117,6 +122,23 @@ public sealed class Bootstrapper : BootstrapperBase
             var classConfig = c.GetInstance<IClassConfigService>();
 
             return new DuetAwardReportService(scoreRepo, classConfig, shell.CurrentDbPath!);
+        });
+
+        _container.RegisterHandler(typeof(ITrioAwardReportService), null, c =>
+        {
+            //var shell = c.GetInstance(typeof(ShellViewModel), null) as ShellViewModel;
+            var shell = c.GetInstance<ShellViewModel>();
+            if (!shell.HasEventLoaded)
+                throw new InvalidOperationException("No event is currently open.");
+
+            //var factory = new SqliteConnectionFactory(shell.CurrentDbPath!);
+            var scoreRepo = c.GetInstance<IScoreRepository>();
+
+            //var classConfig = c.GetInstance(typeof(IClassConfigService), null) as IClassConfigService
+            //?? throw new InvalidOperationException("IClassConfigService not registered.");
+            var classConfig = c.GetInstance<IClassConfigService>();
+
+            return new TrioAwardReportService(scoreRepo, classConfig, shell.CurrentDbPath!);
         });
 
         // Dialogs
