@@ -20,11 +20,7 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
 
     public async Task<DuetAwardReport> GenerateReportAsync()
     {
-        // OLD
-        //var candidates = (await _repository.GetDuetAwardsCandidatesAsync()).ToList();
-
-        // NEW (side-by-side testing)
-        var candidates = await LoadCandidatesNewAsync();
+        var candidates = await LoadCandidatesAsync();
 
         // Resolve class keys
         var enriched = new List<(DuetAwardCandidate Candidate, string? ClassKey)>();
@@ -83,7 +79,7 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
         return new DuetAwardReport(groupsResult);
     }
 
-    private async Task<IReadOnlyList<DuetAwardCandidate>> LoadCandidatesNewAsync()
+    private async Task<IReadOnlyList<DuetAwardCandidate>> LoadCandidatesAsync()
     {
         var routines = await _repository.GetScoredRoutinesAsync("%Duet%");
 

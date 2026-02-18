@@ -33,20 +33,6 @@ public interface IScoreRepository
     Task ClearAllScoresAsync();
     
     /// <summary>
-    /// Gets solo award candidates with computed final scores.
-    /// Filters for EntryType containing 'Solo', splits into School/Studio buckets,
-    /// and keeps only the best-scoring routine per participant per bucket.
-    /// </summary>
-    Task<IReadOnlyList<SoloAwardCandidate>> GetSoloAwardsCandidatesAsync();
-    
-    /// <summary>
-    /// Gets duet award candidates with computed final scores.
-    /// Filters for EntryType containing 'Duet', splits into School/Studio buckets,
-    /// and keeps only the best-scoring routine per participant per bucket.
-    /// </summary>
-    Task<IReadOnlyList<DuetAwardCandidate>> GetDuetAwardsCandidatesAsync();
-
-    /// <summary>
     /// Retrieves all routines of the specified entry type that have been fully scored.
     /// Returns raw routine metadata including class, participants, program number,
     /// studio name, title, and the LastSheetKey needed to load score cells.

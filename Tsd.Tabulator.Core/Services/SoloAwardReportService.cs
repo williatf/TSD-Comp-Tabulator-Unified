@@ -26,11 +26,7 @@ public sealed class SoloAwardReportService : ISoloAwardReportService
 
     public async Task<SoloAwardReport> GenerateReportAsync()
     {
-        // OLD"
-        //var candidates = (await _repository.GetSoloAwardsCandidatesAsync()).ToList();
-
-        // NEW (side-by-side testing)
-        var candidates = await LoadCandidatesNewAsync();
+        var candidates = await LoadCandidatesAsync();
 
         // Resolve class keys for each candidate using the event snapshot
         var enriched = new List<(SoloAwardCandidate Candidate, string? ClassKey)>();
@@ -87,7 +83,7 @@ public sealed class SoloAwardReportService : ISoloAwardReportService
         return new SoloAwardReport(groupsResult);
     }
 
-    private async Task<IReadOnlyList<SoloAwardCandidate>> LoadCandidatesNewAsync()
+    private async Task<IReadOnlyList<SoloAwardCandidate>> LoadCandidatesAsync()
     {
         var routines = await _repository.GetScoredRoutinesAsync("%Solo%");
 
