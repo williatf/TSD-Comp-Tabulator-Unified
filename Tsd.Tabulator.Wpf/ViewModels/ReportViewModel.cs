@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Core.Reports;
+using Tsd.Tabulator.Wpf.Reporting;
 
 namespace Tsd.Tabulator.Wpf.ViewModels;
 
@@ -19,14 +20,14 @@ public sealed class ReportViewModel : Conductor<IScreen>.Collection.OneActive
 
     protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
     {
-        if (!HasEventLoaded)
-        {
-            Items.Clear();
-            return;
-        }
+        Items.Clear();
 
-        // TODO: build tabs (solos, duets, trios, ensembles, officers, teams, special, etc.)
-        // For now we’ll leave this empty and wire the host first.
+        var schemes = IoC.GetAll<IReportScheme>();
+
+        foreach (var scheme in schemes)
+            Items.Add(scheme.CreateTab());
+
+        await ActivateItemAsync(Items.First(), cancellationToken);
     }
 
     public async Task RefreshAsync()

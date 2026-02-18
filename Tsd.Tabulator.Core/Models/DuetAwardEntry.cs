@@ -9,11 +9,24 @@ namespace Tsd.Tabulator.Core.Models;
 /// <summary>
 /// Represents a ranked duet award entry with place.
 /// </summary>
-public sealed record DuetAwardEntry(
-    int Place,
-    double FinalScore,
-    long ProgramNumber,
-    string Participants,
-    string StudioName,
-    string RoutineTitle
-);
+public sealed record DuetAwardEntry : AwardEntryBase
+{
+    public DuetAwardEntry(
+        int place,
+        double finalScore,
+        long programNumber,
+        string participants,
+        string studioName,
+        string routineTitle,
+        string classKey
+    )
+    {
+        Place = place;
+        FinalScore = finalScore;
+        ProgramNumber = programNumber;
+        Participants = participants;
+        StudioName = studioName;
+        RoutineTitle = routineTitle;
+        ClassKey = classKey;
+    }
+}

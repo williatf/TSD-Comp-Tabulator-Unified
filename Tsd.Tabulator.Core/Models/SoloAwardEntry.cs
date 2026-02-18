@@ -9,11 +9,25 @@ namespace Tsd.Tabulator.Core.Models;
 /// <summary>
 /// Represents a ranked solo award entry with place.
 /// </summary>
-public sealed record SoloAwardEntry(
-    int Place,
-    double FinalScore,
-    long ProgramNumber,
-    string Participants,
-    string StudioName,
-    string RoutineTitle
-);
+/// 
+public sealed record SoloAwardEntry : AwardEntryBase
+{
+    public SoloAwardEntry(
+        int place,
+        double finalScore,
+        long programNumber,
+        string participants,
+        string studioName,
+        string routineTitle,
+        string classKey
+    )
+    {
+        Place = place;
+        FinalScore = finalScore;
+        ProgramNumber = programNumber;
+        Participants = participants;
+        StudioName = studioName;
+        RoutineTitle = routineTitle;
+        ClassKey = classKey;
+    }
+}

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tsd.Tabulator.Core
+namespace Tsd.Tabulator.Core.Reporting
 {
-    internal interface ISoloAwardReportService
+    public interface IReportTab
     {
+        Task RefreshAsync();
     }
 }

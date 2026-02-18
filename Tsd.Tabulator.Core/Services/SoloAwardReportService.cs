@@ -73,17 +73,23 @@ public sealed class SoloAwardReportService : ISoloAwardReportService
         var groupsResult = new List<SoloAwardGroup>();
         foreach (var g in groups)
         {
-            groupsResult.Add(CreateGroup(g.Bucket, g.DisplayName, g.Candidates));
+            groupsResult.Add(await CreateGroup(
+                g.Bucket,
+                g.ClassKey,          // ← canonical key
+                g.Candidates,
+                _eventDbPath));
         }
 
         return new SoloAwardReport(groupsResult);
     }
 
-    private static SoloAwardGroup CreateGroup(string bucket, string @class, IEnumerable<SoloAwardCandidate> candidates)
+    private static async Task<SoloAwardGroup> CreateGroup(
+        string bucket,
+        string classKey,
+        IEnumerable<SoloAwardCandidate> candidates,
+        string eventDbPath)
     {
-        // Sort by FinalScore descending
         var sorted = candidates.OrderByDescending(c => c.FinalScore).ToList();
-
         var entries = new List<SoloAwardEntry>();
         int currentPlace = 1;
         double? previousScore = null;
@@ -92,26 +98,19 @@ public sealed class SoloAwardReportService : ISoloAwardReportService
 
         foreach (var candidate in sorted)
         {
-            // Stop after top 12 entries (but include ties at 12th place)
             if (totalEntriesAdded >= MaxEntriesPerGroup &&
                 (!previousScore.HasValue || Math.Abs(candidate.FinalScore - previousScore.Value) >= 0.0001))
-            {
                 break;
-            }
 
-            // Check if this is a tie with previous score
             if (previousScore.HasValue && Math.Abs(candidate.FinalScore - previousScore.Value) < 0.0001)
             {
-                // Tie - same place
                 countAtCurrentScore++;
             }
             else
             {
-                // New score - advance place by number of entries at previous score
                 if (previousScore.HasValue)
-                {
                     currentPlace += countAtCurrentScore;
-                }
+
                 countAtCurrentScore = 1;
                 previousScore = candidate.FinalScore;
             }
@@ -122,12 +121,13 @@ public sealed class SoloAwardReportService : ISoloAwardReportService
                 candidate.ProgramNumber,
                 candidate.Participants,
                 candidate.StudioName,
-                candidate.RoutineTitle
+                candidate.RoutineTitle,
+                classKey
             ));
 
             totalEntriesAdded++;
         }
 
-        return new SoloAwardGroup(bucket, @class, entries);
+        return new SoloAwardGroup(bucket, classKey, entries);
     }
 }
