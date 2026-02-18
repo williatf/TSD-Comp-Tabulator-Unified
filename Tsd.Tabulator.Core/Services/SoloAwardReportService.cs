@@ -26,7 +26,11 @@ public sealed class SoloAwardReportService : ISoloAwardReportService
 
     public async Task<SoloAwardReport> GenerateReportAsync()
     {
-        var candidates = (await _repository.GetSoloAwardsCandidatesAsync()).ToList();
+        // OLD"
+        //var candidates = (await _repository.GetSoloAwardsCandidatesAsync()).ToList();
+
+        // NEW (side-by-side testing)
+        var candidates = await LoadCandidatesNewAsync();
 
         // Resolve class keys for each candidate using the event snapshot
         var enriched = new List<(SoloAwardCandidate Candidate, string? ClassKey)>();
@@ -81,6 +85,37 @@ public sealed class SoloAwardReportService : ISoloAwardReportService
         }
 
         return new SoloAwardReport(groupsResult);
+    }
+
+    private async Task<IReadOnlyList<SoloAwardCandidate>> LoadCandidatesNewAsync()
+    {
+        var routines = await _repository.GetScoredRoutinesAsync("%Solo%");
+
+        var candidates = new List<SoloAwardCandidate>();
+
+        foreach (var r in routines)
+        {
+            var cells = await _repository.GetScoreCellsAsync(r.RoutineId, r.LastSheetKey);
+
+            var judgeTotals = cells
+                .GroupBy(c => c.JudgeIndex)
+                .Select(g => g.Sum(c => c.Value))
+                .ToList();
+
+            var finalScore = judgeTotals.Average();
+
+            candidates.Add(new SoloAwardCandidate
+            {
+                Class = r.Class,
+                Participants = r.Participants,
+                ProgramNumber = r.ProgramNumber,
+                StudioName = r.StudioName,
+                RoutineTitle = r.RoutineTitle,
+                FinalScore = (double)finalScore
+            });
+        }
+
+        return candidates;
     }
 
     private static async Task<SoloAwardGroup> CreateGroup(

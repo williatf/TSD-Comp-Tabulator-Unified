@@ -1,9 +1,10 @@
+using Dapper;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
 using Tsd.Tabulator.Core.Models;
+using Tsd.Tabulator.Core.Reports.Raw;
 using Tsd.Tabulator.Core.Services;
 
 namespace Tsd.Tabulator.Data.Sqlite.Scoring;
@@ -114,6 +115,45 @@ public sealed class ScoreRepository : IScoreRepository
         await conn.ExecuteAsync("DELETE FROM RoutineScoreStatus", transaction: tx);
 
         tx.Commit();
+    }
+
+    public async Task<IReadOnlyList<ScoredRoutineRow>> GetScoredRoutinesAsync(string entryType)
+    {
+        using var conn = _factory.OpenConnection();
+
+        var sql = @"
+        SELECT
+            r.RoutineId,
+            r.ProgramNumber,
+            r.Class,
+            r.ParticipantsRaw AS Participants,
+            r.StudioName,
+            r.RoutineTitle,
+            rss.LastSheetKey
+        FROM Routine r
+        JOIN RoutineScoreStatus rss ON r.RoutineId = rss.RoutineId
+        WHERE r.EntryTypeRaw LIKE @entryType
+          AND rss.IsScored = 1
+          AND rss.LastSheetKey IS NOT NULL;
+    ";
+
+        var results = await conn.QueryAsync<ScoredRoutineRow>(sql, new { entryType });
+        return results.AsList();
+    }
+
+    public async Task<IReadOnlyList<ScoreCellRow>> GetScoreCellsAsync(string routineId, string sheetKey)
+    {
+        using var conn = _factory.OpenConnection();
+
+        var sql = @"
+        SELECT JudgeIndex, Value
+        FROM RoutineScoreCell
+        WHERE RoutineId = @routineId
+          AND SheetKey = @sheetKey;
+    ";
+
+        var results = await conn.QueryAsync<ScoreCellRow>(sql, new { routineId, sheetKey });
+        return results.AsList();
     }
 
     public async Task<IReadOnlyList<SoloAwardCandidate>> GetSoloAwardsCandidatesAsync()

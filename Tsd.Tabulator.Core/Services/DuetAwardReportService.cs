@@ -20,7 +20,11 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
 
     public async Task<DuetAwardReport> GenerateReportAsync()
     {
-        var candidates = (await _repository.GetDuetAwardsCandidatesAsync()).ToList();
+        // OLD
+        //var candidates = (await _repository.GetDuetAwardsCandidatesAsync()).ToList();
+
+        // NEW (side-by-side testing)
+        var candidates = await LoadCandidatesNewAsync();
 
         // Resolve class keys
         var enriched = new List<(DuetAwardCandidate Candidate, string? ClassKey)>();
@@ -77,6 +81,37 @@ public sealed class DuetAwardReportService : IDuetAwardReportService
         }
 
         return new DuetAwardReport(groupsResult);
+    }
+
+    private async Task<IReadOnlyList<DuetAwardCandidate>> LoadCandidatesNewAsync()
+    {
+        var routines = await _repository.GetScoredRoutinesAsync("%Duet%");
+
+        var candidates = new List<DuetAwardCandidate>();
+
+        foreach (var r in routines)
+        {
+            var cells = await _repository.GetScoreCellsAsync(r.RoutineId, r.LastSheetKey);
+
+            var judgeTotals = cells
+                .GroupBy(c => c.JudgeIndex)
+                .Select(g => g.Sum(c => c.Value))
+                .ToList();
+
+            var finalScore = judgeTotals.Average();
+
+            candidates.Add(new DuetAwardCandidate
+            {
+                Class = r.Class,
+                Participants = r.Participants,
+                ProgramNumber = r.ProgramNumber,
+                StudioName = r.StudioName,
+                RoutineTitle = r.RoutineTitle,
+                FinalScore = (double)finalScore
+            });
+        }
+
+        return candidates;
     }
 
     private static async Task<DuetAwardGroup> CreateGroup(

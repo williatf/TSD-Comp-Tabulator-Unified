@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Core.Models;
+using Tsd.Tabulator.Core.Reports.Raw;
 
 namespace Tsd.Tabulator.Core.Services;
 
@@ -44,4 +45,19 @@ public interface IScoreRepository
     /// and keeps only the best-scoring routine per participant per bucket.
     /// </summary>
     Task<IReadOnlyList<DuetAwardCandidate>> GetDuetAwardsCandidatesAsync();
+
+    /// <summary>
+    /// Retrieves all routines of the specified entry type that have been fully scored.
+    /// Returns raw routine metadata including class, participants, program number,
+    /// studio name, title, and the LastSheetKey needed to load score cells.
+    /// This method performs no scoring, ranking, or award logic.
+    /// </summary>
+    Task<IReadOnlyList<ScoredRoutineRow>> GetScoredRoutinesAsync(string entryType);
+
+    /// <summary>
+    /// Retrieves all score cells for a specific routine and score sheet.
+    /// Each row represents a single judge’s value for a single scoring criterion.
+    /// Used by award report services to compute judge totals and final scores.
+    /// </summary>
+    Task<IReadOnlyList<ScoreCellRow>> GetScoreCellsAsync(string routineId, string sheetKey);
 }
