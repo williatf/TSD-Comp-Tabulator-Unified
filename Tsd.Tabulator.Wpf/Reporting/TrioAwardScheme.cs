@@ -15,6 +15,12 @@ public sealed class TrioAwardsScheme : IReportScheme
     public string DisplayName => "Trio Awards";
     public ReportSchema Schema { get; }
 
+    public ReportHeader Header { get; init; } = new(
+        Title: "Trio Awards",
+        Subtitle: null,
+        Notes: "Awards for trio classes with 5+ entries. Sorted by score, then by place."
+    );
+
     public TrioAwardsScheme(
         IReportLoader<TrioAwardEntry> loader,
         IClassConfigService classConfigService,
@@ -42,6 +48,7 @@ public sealed class TrioAwardsScheme : IReportScheme
     public IScreen CreateTab()
     {
         return new ReportTabViewModel<TrioAwardEntry>(
+            this,
             _loader,
             _classConfigService,
             _shell.CurrentDbPath!,

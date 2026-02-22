@@ -15,6 +15,12 @@ public sealed class DuetAwardsScheme : IReportScheme
     public string DisplayName => "Duet Awards";
     public ReportSchema Schema { get; }
 
+    public ReportHeader Header { get; init; } = new(
+        Title: "Duet Awards",
+        Subtitle: null,
+        Notes: "Awards for duet classes with 5+ entries. Sorted by score, then by place."
+    );
+
     public DuetAwardsScheme(
         IReportLoader<DuetAwardEntry> loader,
         IClassConfigService classConfigService,
@@ -42,6 +48,7 @@ public sealed class DuetAwardsScheme : IReportScheme
     public IScreen CreateTab()
     {
         return new ReportTabViewModel<DuetAwardEntry>(
+            this,
             _loader,
             _classConfigService,
             _shell.CurrentDbPath!,

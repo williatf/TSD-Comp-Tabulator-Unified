@@ -6,11 +6,10 @@ using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Core.Services;
 using Tsd.Tabulator.Core.Reporting;
 using Tsd.Tabulator.Core.Models;
+using Tsd.Tabulator.Core.Reports.d_Ensemble;
 using Tsd.Tabulator.Data.Sqlite;
 using Tsd.Tabulator.Data.Sqlite.Scoring;
-using Tsd.Tabulator.Wpf.Reports;
 using Tsd.Tabulator.Wpf.ViewModels;
-using Tsd.Tabulator.Wpf.ViewModels.Reports;
 using Tsd.Tabulator.Wpf.Reporting;
 
 namespace Tsd.Tabulator.Wpf;
@@ -62,31 +61,23 @@ public sealed class Bootstrapper : BootstrapperBase
 
         _container.Singleton<ReportTabFactory>();
 
-
-        // Register all report definitions (without keys so GetAllInstances can find them)
-        // TODO: Remove these manual registrations once we have a more dynamic way to discover report definitions
-        //_container.Singleton<IReportDefinition, SoloAwardsReportDefinition>();
-        //_container.Singleton<IReportDefinition, DuetsAwardsReportDefinition>();
-
-
         // Solo Awards report dependencies
-        _container.Singleton<IReportScheme, SoloAwardsScheme>();
+        _container.PerRequest<IReportScheme, SoloAwardsScheme>();
         _container.Singleton<IReportLoader<SoloAwardEntry>, SoloAwardsLoaderAdapter>();
-        //_container.PerRequest<ReportTabViewModel<SoloAwardEntry>>();
-        _container.PerRequest<SoloAwardsReportTabViewModel>();
 
         // Duet Awards report dependencies
-        _container.Singleton<IReportScheme, DuetAwardsScheme>();
+        _container.PerRequest<IReportScheme, DuetAwardsScheme>();
         _container.Singleton<IReportLoader<DuetAwardEntry>, DuetAwardsLoaderAdapter>();
-        _container.PerRequest<DuetsAwardsReportTabViewModel>();
 
         // Trio Awards report dependencies
-        _container.Singleton<IReportScheme, TrioAwardsScheme>();
+        _container.PerRequest<IReportScheme, TrioAwardsScheme>();
         _container.Singleton<IReportLoader<TrioAwardEntry>, TrioAwardsLoaderAdapter>();
-        _container.PerRequest<TrioAwardsReportTabViewModel>();
+
+        // Ensemble Awards report dependencies
+        _container.PerRequest<IReportScheme, EnsembleAwardsScheme>();
+        _container.Singleton<IReportLoader<EnsembleAwardEntry>, EnsembleAwardsLoaderAdapter>();
 
         // Report ViewModels (per-request)
-        _container.PerRequest<ReportsViewModel>();
         _container.PerRequest<ReportViewModel>();
 
         // Report services (per-request to get fresh repository)
@@ -139,6 +130,16 @@ public sealed class Bootstrapper : BootstrapperBase
             var classConfig = c.GetInstance<IClassConfigService>();
 
             return new TrioAwardReportService(scoreRepo, classConfig, shell.CurrentDbPath!);
+        });
+
+        _container.RegisterHandler(typeof(IEnsembleAwardReportService), null, c =>
+        {
+            var shell = c.GetInstance<ShellViewModel>();
+            if (!shell.HasEventLoaded)
+                throw new InvalidOperationException("No event is currently open.");
+            var scoreRepo = c.GetInstance<IScoreRepository>();
+            var classConfig = c.GetInstance<IClassConfigService>();
+            return new EnsembleAwardReportService(scoreRepo, classConfig, shell.CurrentDbPath!);
         });
 
         // Dialogs

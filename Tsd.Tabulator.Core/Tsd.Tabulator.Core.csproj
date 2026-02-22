@@ -6,4 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Reports\b_Duet\" />
+    <Folder Include="Reports\a_Solo\" />
+    <Folder Include="Reports\c_Trio\" />
+  </ItemGroup>
+
 </Project>

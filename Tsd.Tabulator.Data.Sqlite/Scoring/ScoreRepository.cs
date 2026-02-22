@@ -125,6 +125,7 @@ public sealed class ScoreRepository : IScoreRepository
         SELECT
             r.RoutineId,
             r.ProgramNumber,
+            r.EntryTypeRaw AS EntryType,
             r.Class,
             r.ParticipantsRaw AS Participants,
             r.StudioName,

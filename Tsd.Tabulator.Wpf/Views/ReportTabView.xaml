@@ -3,96 +3,209 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:conv="clr-namespace:Tsd.Tabulator.Wpf.Converters">
 
-    <UserControl.Resources>
-        <conv:DynamicPropertyBindingConverter x:Key="DynamicPropertyBindingConverter" />
-    </UserControl.Resources>
+  <UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <ItemsControl ItemsSource="{Binding Buckets}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Margin="0 12">
+    <conv:DynamicPropertyBindingConverter x:Key="Dyn" />
 
-                        <!-- Bucket -->
-                        <TextBlock Text="{Binding Bucket}"
-                                   FontSize="20"
-                                   FontWeight="Bold" />
 
-                        <ItemsControl ItemsSource="{Binding Classes}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="0 8 0 16">
+    <!-- Shared Header Template -->
+    <DataTemplate x:Key="HeaderRow">
+      <ItemsControl ItemsSource="{Binding Columns}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding Header}"
+                       Width="{Binding Width}"
+                       Margin="4,0"
+                       FontWeight="Bold"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </DataTemplate>
 
-                                        <!-- Class name -->
-                                        <TextBlock Text="{Binding DisplayName}"
-                                                   FontSize="16"
-                                                   FontWeight="SemiBold" />
+    <!-- Shared Row Template -->
+    <DataTemplate x:Key="DataRow">
+      <ItemsControl ItemsSource="{Binding DataContext.Schema.Columns,
+                                        RelativeSource={RelativeSource AncestorType=UserControl}}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Width="{Binding Width}" Margin="4,0">
+              <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource Dyn}">
+                  <Binding Path="DataContext"
+                           RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                  <Binding Path="BindingPath" />
+                </MultiBinding>
+              </TextBlock.Text>
+            </TextBlock>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </DataTemplate>
 
-                                        <!-- Dynamic Header Row -->
-                                        <ItemsControl DataContext="{Binding DataContext.Schema,
-                                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                      ItemsSource="{Binding Columns}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Horizontal"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
+    <!-- STANDARD BUCKET -->
+    <DataTemplate x:Key="StandardBucket">
+      <StackPanel Margin="0 12">
 
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Header}"
-                                                               Margin="4,0"
-                                                               FontWeight="Bold"
-                                                               Width="{Binding Width}" />
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+        <TextBlock Text="{Binding Bucket}"
+                   FontSize="20"
+                   FontWeight="Bold"/>
 
-                                        <!-- Dynamic Rows -->
-                                        <ItemsControl ItemsSource="{Binding Items}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid>
-                                                        <ItemsControl ItemsSource="{Binding DataContext.Schema.Columns,
-                                            RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                                            <ItemsControl.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <StackPanel Orientation="Horizontal"/>
-                                                                </ItemsPanelTemplate>
-                                                            </ItemsControl.ItemsPanel>
+        <ItemsControl ItemsSource="{Binding Classes}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Margin="0 8 0 16">
 
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Margin="4,0"
-                               Width="{Binding Width}">
-                                                                        <TextBlock.Text>
-                                                                            <MultiBinding Converter="{StaticResource DynamicPropertyBindingConverter}">
-                                                                                <!-- Row object -->
-                                                                                <Binding Path="DataContext"
-             RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                <TextBlock Text="{Binding DisplayName}"
+                           FontSize="16"
+                           FontWeight="SemiBold"/>
 
-                                                                                <!-- Column metadata -->
-                                                                                <Binding Path="BindingPath" />
-                                                                            </MultiBinding>
-                                                                        </TextBlock.Text>
-                                                                    </TextBlock>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+                <ContentControl Content="{Binding DataContext.Schema,
+                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                ContentTemplate="{StaticResource HeaderRow}" />
 
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Items}"
+                              ItemTemplate="{StaticResource DataRow}" />
 
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
         </ItemsControl>
+
+      </StackPanel>
+    </DataTemplate>
+
+    <!-- ENSEMBLE BUCKET -->
+    <DataTemplate x:Key="EnsembleBucket">
+      <StackPanel Margin="0 12">
+
+        <TextBlock Text="{Binding Bucket}"
+                   FontSize="20"
+                   FontWeight="Bold"/>
+
+        <ItemsControl ItemsSource="{Binding Classes}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Margin="0 8 0 16">
+
+                <TextBlock Text="{Binding DisplayName}"
+                           FontSize="16"
+                           FontWeight="SemiBold"/>
+
+                <ItemsControl ItemsSource="{Binding Types}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Margin="0 4 0 8">
+
+                        <TextBlock Text="{Binding Type}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"/>
+
+                        <ContentControl Content="{Binding DataContext.Schema,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        ContentTemplate="{StaticResource HeaderRow}" />
+
+                        <ItemsControl ItemsSource="{Binding Items}"
+                                      ItemTemplate="{StaticResource DataRow}" />
+
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+      </StackPanel>
+    </DataTemplate>
+
+    <conv:ReportTemplateSelector x:Key="TemplateSelector"
+                                 StandardTemplate="{StaticResource StandardBucket}"
+                                 EnsembleTemplate="{StaticResource EnsembleBucket}" />
+
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    
+    <!-- HEADER -->
+    <StackPanel Grid.Row="0" Margin="0 0 0 16">
+
+        <TextBlock Text="{Binding Title}">
+          <TextBlock.Style>
+            <Style TargetType="TextBlock">
+              <Setter Property="FontSize" Value="24" />
+              <Setter Property="FontWeight" Value="Bold" />
+              <Setter Property="TextAlignment" Value="Left" />
+              <Setter Property="Visibility" Value="Visible" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Title}" Value="{x:Null}">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
+      
+        <TextBlock Text="{Binding Subtitle}">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontSize" Value="16" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                    <Setter Property="TextAlignment" Value="Left" />
+                    <Setter Property="Margin" Value="0 4 0 0" />
+
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Subtitle}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+
+        <TextBlock Text="{Binding Notes}">
+          <TextBlock.Style>
+            <Style TargetType="TextBlock">
+              <Setter Property="FontSize" Value="14" />
+              <Setter Property="TextAlignment"  Value="Left" />
+              <Setter Property="TextWrapping"  Value="Wrap" />
+              <Setter Property="Foreground" Value="Gray" />
+              <Setter Property="Margin" Value="0 4 0 0" />
+
+              <Setter Property="Visibility" Value="Visible" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Notes}" Value="{x:Null}">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
+    
+    </StackPanel>
+
+    <ScrollViewer Grid.Row ="1" VerticalScrollBarVisibility="Auto">
+      <ItemsControl ItemsSource="{Binding Buckets}"
+                    ItemTemplateSelector="{StaticResource TemplateSelector}" />
     </ScrollViewer>
+    
+  </Grid>
 
 </UserControl>

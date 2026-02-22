@@ -499,6 +499,12 @@ public sealed class ConfigViewModel : Screen
 
                 // Save the scores
                 await _scoreRepo.SaveCellsAsync(routine.RoutineId, sheet.SheetKey, cells);
+
+                // Remove scores from any other sheets for this routine (overwrite behavior)
+                await _scoreRepo.DeleteScoresExceptSheetAsync(routine.RoutineId, sheet.SheetKey);
+
+                // Mark routine as scored and set the last sheet key so it is included in scored routines
+                await _scoreRepo.SetLastSheetKeyAsync(routine.RoutineId, sheet.SheetKey);
             }
 
             MessageBox.Show(

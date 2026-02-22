@@ -9,6 +9,7 @@
             
             <!-- Inverse Bool to Visibility Converter -->
             <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+            <ObjectDataProvider x:Key="diag" ObjectType="{x:Type PresentationTraceSources}" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

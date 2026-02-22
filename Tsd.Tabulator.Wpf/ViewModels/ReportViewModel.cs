@@ -22,7 +22,7 @@ public sealed class ReportViewModel : Conductor<IScreen>.Collection.OneActive
     {
         Items.Clear();
 
-        var schemes = IoC.GetAll<IReportScheme>();
+        var schemes = IoC.GetAll<IReportScheme>().ToList();
 
         foreach (var scheme in schemes)
             Items.Add(scheme.CreateTab());

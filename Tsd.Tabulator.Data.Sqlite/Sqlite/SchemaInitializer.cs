@@ -55,8 +55,7 @@ public sealed class SchemaInitializer
                 FingerprintVersion INTEGER NOT NULL DEFAULT 1,
                 IsInactive INTEGER NOT NULL DEFAULT 0 CHECK (IsInactive IN (0,1)),
                 CreatedAtUtc TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-                UpdatedAtUtc TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-                CONSTRAINT PK_Routine PRIMARY KEY (RoutineId)
+                UpdatedAtUtc TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
             );
 
             CREATE UNIQUE INDEX IF NOT EXISTS UX_Routine_Fingerprint ON Routine(Fingerprint);

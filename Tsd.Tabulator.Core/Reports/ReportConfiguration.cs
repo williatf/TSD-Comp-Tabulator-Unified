@@ -21,6 +21,8 @@ public sealed class ReportConfiguration
             {
                 "SoloAwards",
                 "DuetAwards",
+                "TrioAwards",
+                "EnsembleAwards"
                 // Add more TSDance-specific reports here in display order
             },
 
