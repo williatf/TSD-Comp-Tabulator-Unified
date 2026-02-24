@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
-using Tsd.Tabulator.Core.Models;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Core.Reports.b_Duet;
 
 /// <summary>
 /// Service for generating duet award reports with ranking and tie-breaking logic.

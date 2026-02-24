@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tsd.Tabulator.Core.Models;
+namespace Tsd.Tabulator.Core.Reports.a_Solo;
 
 /// <summary>
 /// Represents a routine eligible for solo awards after participant de-duplication.

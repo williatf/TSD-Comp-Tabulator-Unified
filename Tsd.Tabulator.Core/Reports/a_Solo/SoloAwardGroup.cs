@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Tsd.Tabulator.Core.Models;
+namespace Tsd.Tabulator.Core.Reports.a_Solo;
 
 /// <summary>
 /// Represents a group of solo award entries within a bucket and class.

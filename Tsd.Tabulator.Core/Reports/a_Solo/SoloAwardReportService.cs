@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Tsd.Tabulator.Core.Models;
 using Tsd.Tabulator.Core.Services;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Core.Reports.a_Solo;
 
 /// <summary>
 /// Generates solo award reports using the event DB's class snapshot for ordering and bucket resolution.

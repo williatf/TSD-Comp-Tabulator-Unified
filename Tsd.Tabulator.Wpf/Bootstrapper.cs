@@ -4,13 +4,14 @@ using System.Runtime.Versioning;
 using Caliburn.Micro;
 using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Core.Services;
-using Tsd.Tabulator.Core.Reporting;
-using Tsd.Tabulator.Core.Models;
 using Tsd.Tabulator.Core.Reports.d_Ensemble;
 using Tsd.Tabulator.Data.Sqlite;
 using Tsd.Tabulator.Data.Sqlite.Scoring;
 using Tsd.Tabulator.Wpf.ViewModels;
 using Tsd.Tabulator.Wpf.Reporting;
+using Tsd.Tabulator.Core.Reports.b_Duet;
+using Tsd.Tabulator.Core.Reports.a_Solo;
+using Tsd.Tabulator.Core.Reports.c_Trio;
 
 namespace Tsd.Tabulator.Wpf;
 

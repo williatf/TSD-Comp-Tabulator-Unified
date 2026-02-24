@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Tsd.Tabulator.Core.Reporting;
+using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Core.Reports.d_Ensemble;
 
 namespace Tsd.Tabulator.Wpf.Converters;

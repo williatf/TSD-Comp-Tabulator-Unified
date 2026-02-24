@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Core.Reporting;
+using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Core.Reports.d_Ensemble;
 using Tsd.Tabulator.Core.Services;
 using Tsd.Tabulator.Wpf.Reporting;

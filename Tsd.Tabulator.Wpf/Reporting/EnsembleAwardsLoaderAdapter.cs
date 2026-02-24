@@ -1,6 +1,5 @@
-using Tsd.Tabulator.Core.Reporting;
+using Tsd.Tabulator.Core.Reports;
 using Tsd.Tabulator.Core.Reports.d_Ensemble;
-using Tsd.Tabulator.Core.Services;
 
 namespace Tsd.Tabulator.Wpf.Reporting;
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Tsd.Tabulator.Core.Models;
+namespace Tsd.Tabulator.Core.Reports.c_Trio;
 
 /// <summary>
 /// Represents a complete trio award report with all groups.

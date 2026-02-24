@@ -1,4 +1,4 @@
-﻿namespace Tsd.Tabulator.Core.Reporting;
+﻿namespace Tsd.Tabulator.Core.Reports;
 
 public sealed class ClassGroup
 {

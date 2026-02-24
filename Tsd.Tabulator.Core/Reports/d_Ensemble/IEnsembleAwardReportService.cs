@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
-using Tsd.Tabulator.Core.Reports.d_Ensemble;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Core.Reports.d_Ensemble;
 
 /// <summary>
 /// Service for generating ensemble award reports with ranking and tie-breaking logic.

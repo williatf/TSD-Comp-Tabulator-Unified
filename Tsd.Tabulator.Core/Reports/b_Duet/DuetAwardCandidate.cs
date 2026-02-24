@@ -4,43 +4,43 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Tsd.Tabulator.Core.Models;
+namespace Tsd.Tabulator.Core.Reports.b_Duet;
 
 /// <summary>
 /// Represents a routine eligible for duet awards after participant de-duplication.
 /// </summary>
-public sealed record TrioAwardCandidate
+public sealed record DuetAwardCandidate
 {
     /// <summary>
     /// Gets the bucket ("School" or "Studio").
     /// </summary>
     public string Bucket { get; init; } = string.Empty;
-
+    
     /// <summary>
     /// Gets the original class name.
     /// </summary>
     public string Class { get; init; } = string.Empty;
-
+    
     /// <summary>
     /// Gets the comma-separated participant names.
     /// </summary>
     public string Participants { get; init; } = string.Empty;
-
+    
     /// <summary>
     /// Gets the program number for display.
     /// </summary>
     public long ProgramNumber { get; init; }
-
+    
     /// <summary>
     /// Gets the studio name.
     /// </summary>
     public string StudioName { get; init; } = string.Empty;
-
+    
     /// <summary>
     /// Gets the routine title.
     /// </summary>
     public string RoutineTitle { get; init; } = string.Empty;
-
+    
     /// <summary>
     /// Gets the average of judge totals.
     /// </summary>

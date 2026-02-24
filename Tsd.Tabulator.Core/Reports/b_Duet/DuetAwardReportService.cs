@@ -1,6 +1,6 @@
-﻿using Tsd.Tabulator.Core.Models;
+﻿using Tsd.Tabulator.Core.Services;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Core.Reports.b_Duet;
 
 public sealed class DuetAwardReportService : IDuetAwardReportService
 {

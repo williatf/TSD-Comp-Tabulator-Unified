@@ -1,6 +1,6 @@
 ﻿using Caliburn.Micro;
-using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Core.Reporting;
+using Tsd.Tabulator.Core.Reports;
+using Tsd.Tabulator.Core.Reports.c_Trio;
 using Tsd.Tabulator.Core.Services;
 using Tsd.Tabulator.Wpf.ViewModels;
 

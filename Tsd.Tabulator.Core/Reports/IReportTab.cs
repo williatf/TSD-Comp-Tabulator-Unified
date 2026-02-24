@@ -13,11 +13,6 @@ public interface IReportTab
     string DisplayName { get; set; }
 
     /// <summary>
-    /// Generates the report asynchronously.
-    /// </summary>
-    Task GenerateReportAsync();
-
-    /// <summary>
     /// Refreshes the active report tab.
     /// Called automatically on activation or manually via Refresh button.
     /// </summary>

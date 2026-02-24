@@ -1,6 +1,5 @@
-﻿using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Core.Reporting;
-using Tsd.Tabulator.Core.Services;
+﻿using Tsd.Tabulator.Core.Reports;
+using Tsd.Tabulator.Core.Reports.b_Duet;
 
 namespace Tsd.Tabulator.Wpf.Reporting;
 

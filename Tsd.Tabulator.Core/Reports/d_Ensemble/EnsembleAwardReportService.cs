@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tsd.Tabulator.Core.Models;
-using Tsd.Tabulator.Core.Reports.d_Ensemble;
-using Tsd.Tabulator.Core.Reporting;
+using Tsd.Tabulator.Core.Services;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Core.Reports.d_Ensemble;
 
 /// <summary>
 /// Generates the Ensemble Award Report using the canonical class-definition
@@ -157,25 +156,32 @@ public sealed class EnsembleAwardReportService : IEnsembleAwardReportService
         var routines = await _repository.GetScoredRoutinesAsync("%Ensemble%");
         var candidates = new List<EnsembleAwardCandidate>();
 
-        foreach (var r in routines)
-        {
-            if (string.IsNullOrWhiteSpace(r.LastSheetKey))
-                continue;
-
-            var scoreCells = await _repository.GetScoreCellsAsync(r.RoutineId, r.LastSheetKey);
-            var finalScore = scoreCells.Sum(s => s.Value);
-
-            candidates.Add(new EnsembleAwardCandidate
+            foreach (var r in routines)
             {
-                RoutineId = r.RoutineId,
-                Division = r.Class,                 // raw class text
-                Type = r.EntryType,
-                ProgramNumber = r.ProgramNumber,
-                StudioName = r.StudioName,
-                RoutineTitle = r.RoutineTitle,
-                FinalScore = (double)finalScore
-            });
-        }
+                if (string.IsNullOrWhiteSpace(r.LastSheetKey))
+                    continue;
+
+                var scoreCells = await _repository.GetScoreCellsAsync(r.RoutineId, r.LastSheetKey);
+
+                // Compute per-judge totals then average them (same as Solo report)
+                var judgeTotals = scoreCells
+                    .GroupBy(c => c.JudgeIndex)
+                    .Select(g => g.Sum(c => c.Value))
+                    .ToList();
+
+                var finalScore = judgeTotals.Any() ? (double)judgeTotals.Average() : 0.0;
+
+                candidates.Add(new EnsembleAwardCandidate
+                {
+                    RoutineId = r.RoutineId,
+                    Division = r.Class,                 // raw class text
+                    Type = r.EntryType,
+                    ProgramNumber = r.ProgramNumber,
+                    StudioName = r.StudioName,
+                    RoutineTitle = r.RoutineTitle,
+                    FinalScore = (double)finalScore
+                });
+            }
 
         return candidates;
     }

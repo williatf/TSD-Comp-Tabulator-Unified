@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Tsd.Tabulator.Core.Models;
+namespace Tsd.Tabulator.Core.Reports.b_Duet;
 
 /// <summary>
 /// Represents a complete duet award report with all groups.

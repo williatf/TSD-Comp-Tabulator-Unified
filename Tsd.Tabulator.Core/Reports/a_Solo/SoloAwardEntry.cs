@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tsd.Tabulator.Core.Models;
 
-namespace Tsd.Tabulator.Core.Models;
+namespace Tsd.Tabulator.Core.Reports.a_Solo;
 
 /// <summary>
 /// Represents a ranked solo award entry with place.

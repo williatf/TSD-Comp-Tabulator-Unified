@@ -1,6 +1,6 @@
 ﻿using Tsd.Tabulator.Core.Models;
 
-namespace Tsd.Tabulator.Core.Reporting;
+namespace Tsd.Tabulator.Core.Reports;
 
 public interface IReportLoader<T>
 {

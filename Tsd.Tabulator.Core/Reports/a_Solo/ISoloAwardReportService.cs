@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
-using Tsd.Tabulator.Core.Models;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Core.Reports.a_Solo;
 
 /// <summary>
 /// Service for generating solo award reports with ranking and tie-breaking logic.

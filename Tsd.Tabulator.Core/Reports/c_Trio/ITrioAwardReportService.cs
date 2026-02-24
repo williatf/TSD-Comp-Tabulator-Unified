@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Tsd.Tabulator.Core.Models;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Core.Reports.c_Trio;
 
 /// <summary>
 /// Service for generating trio award reports with ranking and tie-breaking logic.

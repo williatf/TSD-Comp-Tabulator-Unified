@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 
-namespace Tsd.Tabulator.Core.Models;
+namespace Tsd.Tabulator.Core.Reports.b_Duet;
 
 /// <summary>
 /// Represents a group of duet award entries within a bucket and class.
 /// </summary>
-public sealed record TrioAwardGroup(
+public sealed record DuetAwardGroup(
     string Bucket,
     string Class,
-    IReadOnlyList<TrioAwardEntry> Entries
+    IReadOnlyList<DuetAwardEntry> Entries
 );

@@ -1,6 +1,6 @@
-﻿using Tsd.Tabulator.Core.Models;
+﻿using Tsd.Tabulator.Core.Services;
 
-namespace Tsd.Tabulator.Core.Services;
+namespace Tsd.Tabulator.Core.Reports.c_Trio;
 
 public sealed class TrioAwardReportService : ITrioAwardReportService
 {
